@@ -1,0 +1,51 @@
+name: Mirror + build repo
+
+on:
+  schedule:
+    - cron: '17 4 * * 1'  # Mondays 04:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Write signing key
+        run: |
+          if [ -n "${{ secrets.COMMUNITY_SIGNING_KEY }}" ]; then
+            printf '%s\n' "${{ secrets.COMMUNITY_SIGNING_KEY }}" > /tmp/community-signing.key
+            chmod 600 /tmp/community-signing.key
+            echo "SIGN_KEY=/tmp/community-signing.key" >> $GITHUB_ENV
+          else
+            echo "SIGN_KEY=" >> $GITHUB_ENV
+            echo "::warning::COMMUNITY_SIGNING_KEY secret not set - repo will be built unsigned"
+          fi
+
+      - name: Build in FreeBSD VM
+        uses: vmactions/freebsd-vm@v1
+        with:
+          release: '15'
+          usesh: true
+          prepare: |
+            pkg install -y pkg openssl php82 2>/dev/null || pkg install -y pkg openssl php83
+          run: |
+            sh pkg/build.sh
+
+      - name: Deploy to gh-pages
+        run: |
+          git config user.name "tmiland-lab[bot]"
+          git config user.email "4862101+tmiland-lab[bot]@users.noreply.github.com"
+          git fetch origin gh-pages
+          git worktree add gh-pages origin/gh-pages
+          rm -rf gh-pages/repo gh-pages/index.html
+          mkdir -p gh-pages/repo
+          cp /tmp/pfsense-community-packages-out/repo/* gh-pages/repo/
+          cp /tmp/pfsense-community-packages-out/index.html gh-pages/index.html
+          cd gh-pages
+          git add -A index.html repo
+          git commit -m "mirror: repo refresh $(date -u +%Y-%m-%dT%H:%MZ)" || echo "nothing to commit"
+          git push origin gh-pages

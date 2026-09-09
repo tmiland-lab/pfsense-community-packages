@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE packagegui SYSTEM "../schema/packages.dtd">
+<packagegui>
+	<name>community</name>
+	<version>0.1.0</version>
+	<title>Community Packages</title>
+	<menu>
+		<name>Community Packages</name>
+		<tooltiptext>Install, upgrade and remove community and mirrored pfSense packages</tooltiptext>
+		<section>System</section>
+		<url>/packages/community/index.php</url>
+	</menu>
+</packagegui>
