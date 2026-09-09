@@ -51,4 +51,4 @@ jobs:
           cd gh-pages
           git add -A index.html repo
           git commit -m "mirror: repo refresh $(date -u +%Y-%m-%dT%H:%MZ)" || echo "nothing to commit"
-          git push origin gh-pages
+          git push origin HEAD:gh-pages
