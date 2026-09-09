@@ -14,7 +14,7 @@ if (!function_exists('config_get_path')) {
 if (!defined('CPM_REPO')) {
 	define('CPM_REPO', 'community');
 	define('CPM_BASE', '/usr/local/pfsense-community');
-	define('CPM_PKG', '/usr/sbin/pkg-static');
+	define('CPM_PKG', '/usr/local/sbin/pkg-static');
 }
 
 /* All packages offered by the unified community repository, plus the
