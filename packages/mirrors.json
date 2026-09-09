@@ -1,83 +1,94 @@
 {
-	"_comment": "Unified community package sources for the pfSense Community Packages repo. 'own' entries resolve the newest .pkg from the given pkg repo's packagesite at build time. 'mirror' entries are pinned upstream release assets verified against 'sha256' (fail hard on mismatch).",
-	"packages": [
-		{
-			"name": "pfSense-pkg-configbackup",
-			"source": "own",
-			"repo_url": "https://tmiland-lab.github.io/pfsense-configbackup/repo",
-			"upstream": "https://github.com/tmiland-lab/pfsense-configbackup",
-			"license": "MIT"
-		},
-		{
-			"name": "pfSense-pkg-abuseipdb",
-			"source": "own",
-			"repo_url": "https://tmiland.github.io/pfsense-abuseipdb/repo",
-			"upstream": "https://github.com/tmiland/pfsense-abuseipdb",
-			"license": "MIT"
-		},
-		{
-			"name": "pfSense-pkg-adguardhome",
-			"source": "own",
-			"repo_url": "https://tmiland.github.io/pfsense-adguardhome/repo",
-			"upstream": "https://github.com/tmiland/pfsense-adguardhome",
-			"license": "MIT"
-		},
-		{
-			"name": "pfSense-theme-lightdark",
-			"source": "own",
-			"repo_url": "https://tmiland-lab.github.io/pfsense-theme-lightdark/repo",
-			"upstream": "https://github.com/tmiland-lab/pfsense-theme-lightdark",
-			"license": "MIT"
-		},
-		{
-			"name": "pfSense-pkg-RESTAPI",
-			"source": "mirror",
-			"version": "2.10.2",
-			"url": "https://github.com/pfrest/pfSense-pkg-RESTAPI/releases/download/v2.10.2/pfSense-2.8.1-pkg-RESTAPI.pkg",
-			"sha256": "25d0a133e58d57358630fa0f8f80ffd075a4c2c9605f42528dcc0bbaf88cac24",
-			"upstream": "https://github.com/pfrest/pfSense-pkg-RESTAPI",
-			"upstream_publishes_checksums": false,
-			"license": "Apache-2.0",
-			"abi": "pfSense 2.8.1"
-		},
-		{
-			"name": "pfSense-pkg-saml2-auth",
-			"source": "mirror",
-			"version": "2.1.0",
-			"url": "https://github.com/pfrest/pfSense-pkg-saml2-auth/releases/download/v2.1.0/pfSense-2.8-pkg-saml2-auth.pkg",
-			"sha256": "81aed75ef25d8b94e45246f37dbb77697ce8204db8f352a9d232ea7137fc1380",
-			"upstream": "https://github.com/pfrest/pfSense-pkg-saml2-auth",
-			"upstream_publishes_checksums": false,
-			"license": "Apache-2.0",
-			"abi": "pfSense 2.8"
-		},
-		{
-			"name": "pfSense-pkg-dnscrypt-proxy",
-			"source": "mirror",
-			"version": "1.2.10",
-			"url": "https://github.com/nopoz/pfsense-dnscrypt-proxy/releases/download/v1.2.10/pfSense-pkg-dnscrypt-proxy-1.2.10.pkg",
-			"sha256": "a2e664523da4e081272d3b941174233b4b06b41dcc6a1ed8ab70487fcde84bad",
-			"upstream": "https://github.com/nopoz/pfsense-dnscrypt-proxy",
-			"upstream_publishes_checksums": true,
-			"license": "ISC",
-			"abi": "pfSense 2.8.x"
-		},
-		{
-			"name": "pfSense-pkg-dnscrypt-proxy",
-			"source": "mirror",
-			"version": "1.2.10",
-			"url": "https://github.com/nopoz/pfsense-dnscrypt-proxy/releases/download/v1.2.10/pfSense-pkg-dnscrypt-proxy-1.2.10.pkg",
-			"sha256": "a2e664523da4e081272d3b941174233b4b06b41dcc6a1ed8ab70487fcde84bad",
-			"upstream": "https://github.com/nopoz/pfsense-dnscrypt-proxy",
-			"upstream_publishes_checksums": true,
-			"license": "ISC",
-			"abi": "FreeBSD:*:* (ABI-agnostic)"
-		}
-	],
-	"_excluded": [
-		{
-			"name": "pfSense-pkg-WireGuard-ClientExport",
-			"reason": "upstream 0.1.0.b1 is built for FreeBSD:14:amd64 (pfSense 2.7 era) - wrong ABI for 2.8.1; revisit when upstream ships a 2.8.x build"
-		}
-	]
+  "_comment": "Unified community package sources for the pfSense Community Packages repo. 'own' entries resolve the newest .pkg from the given pkg repo's packagesite at build time. 'mirror' entries are pinned upstream release assets verified against 'sha256' (fail hard on mismatch).",
+  "packages": [
+    {
+      "name": "pfSense-pkg-configbackup",
+      "source": "own",
+      "repo_url": "https://tmiland-lab.github.io/pfsense-configbackup/repo",
+      "upstream": "https://github.com/tmiland-lab/pfsense-configbackup",
+      "license": "MIT"
+    },
+    {
+      "name": "pfSense-pkg-abuseipdb",
+      "source": "own",
+      "repo_url": "https://tmiland.github.io/pfsense-abuseipdb/repo",
+      "upstream": "https://github.com/tmiland/pfsense-abuseipdb",
+      "license": "MIT"
+    },
+    {
+      "name": "pfSense-pkg-adguardhome",
+      "source": "own",
+      "repo_url": "https://tmiland.github.io/pfsense-adguardhome/repo",
+      "upstream": "https://github.com/tmiland/pfsense-adguardhome",
+      "license": "MIT"
+    },
+    {
+      "name": "pfSense-theme-lightdark",
+      "source": "own",
+      "repo_url": "https://tmiland-lab.github.io/pfsense-theme-lightdark/repo",
+      "upstream": "https://github.com/tmiland-lab/pfsense-theme-lightdark",
+      "license": "MIT"
+    },
+    {
+      "name": "pfSense-pkg-RESTAPI",
+      "source": "mirror",
+      "version": "2.10.2",
+      "url": "https://github.com/pfrest/pfSense-pkg-RESTAPI/releases/download/v2.10.2/pfSense-2.8.1-pkg-RESTAPI.pkg",
+      "sha256": "25d0a133e58d57358630fa0f8f80ffd075a4c2c9605f42528dcc0bbaf88cac24",
+      "upstream": "https://github.com/pfrest/pfSense-pkg-RESTAPI",
+      "upstream_publishes_checksums": false,
+      "license": "Apache-2.0",
+      "abi": "pfSense 2.8.1"
+    },
+    {
+      "name": "pfSense-pkg-saml2-auth",
+      "source": "mirror",
+      "version": "2.1.0",
+      "url": "https://github.com/pfrest/pfSense-pkg-saml2-auth/releases/download/v2.1.0/pfSense-2.8-pkg-saml2-auth.pkg",
+      "sha256": "81aed75ef25d8b94e45246f37dbb77697ce8204db8f352a9d232ea7137fc1380",
+      "upstream": "https://github.com/pfrest/pfSense-pkg-saml2-auth",
+      "upstream_publishes_checksums": false,
+      "license": "Apache-2.0",
+      "abi": "pfSense 2.8"
+    },
+    {
+      "name": "pfSense-pkg-wgeasy",
+      "source": "mirror",
+      "version": "0.4.3",
+      "url": "https://github.com/MarceloMayo74/pfsense-wgeasy/releases/download/v0.4.3/pfSense-pkg-wgeasy-0.4.3.pkg",
+      "sha256": "641ea94c8664c1f72de4cdc0fc13baca08815d5d21b73c044648d95bd45e4bf4",
+      "upstream": "https://github.com/MarceloMayo74/pfsense-wgeasy",
+      "upstream_publishes_checksums": false,
+      "license": "Apache-2.0",
+      "abi": "FreeBSD:*:* (ABI-agnostic)"
+    },
+    {
+      "name": "pfSense-pkg-wg-export",
+      "source": "mirror",
+      "version": "1.1.0",
+      "url": "https://github.com/3um3le3ee/pfSense-wireguard-peer-export/releases/download/v1.1.0/pfSense-pkg-wg-export-1.1.0.pkg",
+      "sha256": "bd46b77902480c61b85aaceef604797c4b9388b8c8b096913396d56ebb5784f5",
+      "upstream": "https://github.com/3um3le3ee/pfSense-wireguard-peer-export",
+      "upstream_publishes_checksums": false,
+      "license": "GPL-3.0",
+      "abi": "FreeBSD:*:* (ABI-agnostic)"
+    },
+    {
+      "name": "pfSense-pkg-dnscrypt-proxy",
+      "source": "mirror",
+      "version": "1.2.10",
+      "url": "https://github.com/nopoz/pfsense-dnscrypt-proxy/releases/download/v1.2.10/pfSense-pkg-dnscrypt-proxy-1.2.10.pkg",
+      "sha256": "a2e664523da4e081272d3b941174233b4b06b41dcc6a1ed8ab70487fcde84bad",
+      "upstream": "https://github.com/nopoz/pfsense-dnscrypt-proxy",
+      "upstream_publishes_checksums": true,
+      "license": "ISC",
+      "abi": "pfSense 2.8.x"
+    }
+  ],
+  "_excluded": [
+    {
+      "name": "pfSense-pkg-WireGuard-ClientExport",
+      "reason": "upstream 0.1.0.b1 is built for FreeBSD:14:amd64 (pfSense 2.7 era) - wrong ABI for 2.8.1; revisit when upstream ships a 2.8.x build"
+    }
+  ]
 }
