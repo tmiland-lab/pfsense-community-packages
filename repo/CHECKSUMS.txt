@@ -1,0 +1,13 @@
+(./All/pfSense-2.8-pkg-saml2-auth.pkg) = 81aed75ef25d8b94e45246f37dbb77697ce8204db8f352a9d232ea7137fc1380
+(./All/pfSense-2.8.1-pkg-RESTAPI.pkg) = 25d0a133e58d57358630fa0f8f80ffd075a4c2c9605f42528dcc0bbaf88cac24
+(./All/pfSense-pkg-abuseipdb-0.8.9.pkg) = 52c985c45e6e51c947fb5c0cf23ef2c833bd2dde70bf5bf77a7c156c37c5a23a
+(./All/pfSense-pkg-adguardhome-1.1.2.pkg) = 3f69dd9013cf00a06d923d78e17dabea8901909a26518ba6ab6c97942241cfcc
+(./All/pfSense-pkg-community-0.1.0.pkg) = 66e4071a41ede0a256a35550bad91ce600a6ad81e2418d30b5618599dfcf3523
+(./All/pfSense-pkg-configbackup-0.1.6.pkg) = a63c2c9d02e393db17ca1917c7410b150992c57197ad6b84650d8f9b8c06b2a6
+(./All/pfSense-pkg-dnscrypt-proxy-1.2.10.pkg) = a2e664523da4e081272d3b941174233b4b06b41dcc6a1ed8ab70487fcde84bad
+(./All/pfSense-theme-lightdark-0.2.3.pkg) = a688c8f8885886fb0d8dea389888f4c280c21a625dae4c5d4edd11410e8a38fb
+(./data.pkg) = d1f59f257de31ab8293f3e2226c423445dbcd58616e458b7539f65d3671f33e2
+(./CHECKSUMS.txt) = e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+(./meta) = 53a1a3590da5e198d3d5932fad89c02be663dbdfd2dfad313da75ad6ad388c5a
+(./meta.conf) = 53a1a3590da5e198d3d5932fad89c02be663dbdfd2dfad313da75ad6ad388c5a
+(./packagesite.pkg) = d36ed1f3790298d516d3f84b50b75c7bf2479ef7c249c9c0990b7c62caa13877

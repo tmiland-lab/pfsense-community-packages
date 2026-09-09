@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pfsense-community-packages — pkg repo</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #212121; color: #e0e0e0; margin: 0; padding: 2rem 1rem; }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  h1 a { color: #e0e0e0; text-decoration: none; }
+  code { background: #303030; padding: 2px 6px; border-radius: 4px; }
+  a { color: #64b5f6; }
+  table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #303030; }
+  th { color: #9e9e9e; font-weight: 600; }
+  .muted { color: #9e9e9e; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1><a href="https://github.com/tmiland-lab/pfsense-community-packages">pfsense-community-packages</a></h1>
+<p>Unified pkg(8) repository for community and mirrored pfSense packages —
+packages dropped from or absent in the official pfSense repository, plus first-party
+packages. Install/upgrade/remove them with the <a href="https://github.com/tmiland-lab/pfsense-community-packages">Community Packages</a> manager or plain <code>pkg-static</code>.</p>
+<p>Repo URL for <code>/usr/local/etc/pkg/repos/community.conf</code>:<br>
+<code>https://tmiland-lab.github.io/pfsense-community-packages/repo</code></p>
+<p>Metadata is signed; the trust anchor is installed by the manager package
+(<code>signature_type: fingerprints</code>).</p>
+<table>
+<tr><th>Package</th><th>Version</th><th>Description</th><th>License</th><th>Size (flatsize)</th></tr>
+<tr>
+<td><code>pfSense-pkg-abuseipdb</code></td>
+<td>0.8.9</td>
+<td>AbuseIPDB Suricata alert watcher for pfSense</td>
+<td>MIT</td>
+<td>0</td>
+</tr>
+<tr>
+<td><code>pfSense-pkg-adguardhome</code></td>
+<td>1.1.2</td>
+<td>AdGuard Home manager package for pfSense</td>
+<td>MIT</td>
+<td>0</td>
+</tr>
+<tr>
+<td><code>pfSense-pkg-community</code></td>
+<td>0.1.0</td>
+<td>Community Packages - unified manager for community/mirrored pfSense packages</td>
+<td></td>
+<td>0</td>
+</tr>
+<tr>
+<td><code>pfSense-pkg-configbackup</code></td>
+<td>0.1.6</td>
+<td>Config Backup - own-database configuration backup for pfSense</td>
+<td>MIT</td>
+<td>0</td>
+</tr>
+<tr>
+<td><code>pfSense-pkg-dnscrypt-proxy</code></td>
+<td>1.2.10</td>
+<td>pfSense package for DNSCrypt Proxy encrypted DNS client</td>
+<td>ISC</td>
+<td>0</td>
+</tr>
+<tr>
+<td><code>pfSense-pkg-RESTAPI</code></td>
+<td>2.10_2</td>
+<td>pfSense REST API package</td>
+<td>Apache-2.0</td>
+<td>0</td>
+</tr>
+<tr>
+<td><code>pfSense-pkg-saml2-auth</code></td>
+<td>2.1</td>
+<td>pfSense SAML2 Authentication package</td>
+<td>Apache-2.0</td>
+<td>0</td>
+</tr>
+<tr>
+<td><code>pfSense-theme-lightdark</code></td>
+<td>0.2.3</td>
+<td>Light/dark system-switching theme for pfSense</td>
+<td>MIT</td>
+<td>0</td>
+</tr>
+</table>
+<p class="muted">Mirrored packages keep their upstream provenance (URL, version and sha256)
+in <a href="https://github.com/tmiland-lab/pfsense-community-packages">packages/mirrors.json</a>
+and are verified at every build. Checksums: <a href="repo/CHECKSUMS.txt">repo/CHECKSUMS.txt</a>.</p>
+<p class="muted">Built with opencode. License: MIT.</p>
+</div>
+</body>
+</html>
