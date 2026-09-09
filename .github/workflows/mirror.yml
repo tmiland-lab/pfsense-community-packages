@@ -30,10 +30,13 @@ jobs:
         with:
           release: '15'
           usesh: true
+          # The workspace is bind-mounted into the VM, so OUT_DIR must live
+          # there for the host-side deploy step to see the build output.
+          envs: 'OUT_DIR'
           prepare: |
             pkg install -y pkg openssl php82 2>/dev/null || pkg install -y pkg openssl php83
           run: |
-            sh pkg/build.sh
+            OUT_DIR=$GITHUB_WORKSPACE/out sh pkg/build.sh
 
       - name: Deploy to gh-pages
         run: |
@@ -43,8 +46,8 @@ jobs:
           git worktree add gh-pages origin/gh-pages
           rm -rf gh-pages/repo gh-pages/index.html
           mkdir -p gh-pages/repo
-          cp /tmp/pfsense-community-packages-out/repo/* gh-pages/repo/
-          cp /tmp/pfsense-community-packages-out/index.html gh-pages/index.html
+          cp "$GITHUB_WORKSPACE"/out/repo/* gh-pages/repo/
+          cp "$GITHUB_WORKSPACE"/out/index.html gh-pages/index.html
           cd gh-pages
           git add -A index.html repo
           git commit -m "mirror: repo refresh $(date -u +%Y-%m-%dT%H:%MZ)" || echo "nothing to commit"

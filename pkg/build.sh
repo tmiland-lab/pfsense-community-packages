@@ -14,7 +14,7 @@ REPO=$(dirname "$PKGDIR")
 WORK=$(mktemp -d /tmp/pfsense-community-packages-build.XXXXXX)
 STAGE="$WORK/stage"
 META="$WORK/meta"
-OUT="/tmp/pfsense-community-packages-out"
+OUT="${OUT_DIR:-/tmp/pfsense-community-packages-out}"
 rm -rf "$OUT"
 mkdir -p "$STAGE/All" "$META" "$OUT/repo/All"
 
