@@ -11,9 +11,27 @@
 
 CM_BASE="/usr/local/pfsense-community"
 REPO_CONF="/usr/local/etc/pkg/repos/community.conf"
-FPR_DIR="/usr/local/etc/pkg/fingerprints/community/trusted"
-# SHA256 of the repo signing key's DER-encoded public key.
-FPR="d3966d287681128b34e5cdd7e83e81d2e4a326b2e3154949b6d510d8be427bd2"
+PUBKEY="/usr/local/etc/pkg/community.pub"
+
+write_pubkey() {
+  cat > "$PUBKEY" <<'EOF'
+-----BEGIN PUBLIC KEY-----
+MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAtqlVmzxvpFPb8M2CzhTk
++u4c7NdpDUu08ou27M7alT0IHxDHDx3Ns8xYnwHxWqYX2QaKSC3SERmBjjr2k7uZ
+/KIgSngvaJW6SpKPiRaWp4Z0sRV1SRWyW/msPUUnrPfBTwwEZjlRR7xJCnMzFFcv
+smWYvsgzZ+n18/+KBhxnv+H0l1xl0mBsIpK30ZXLSCghJ3lwUk4nc/pXVeUF3WK9
+r6WOmABsYg76YWK7fgHFCUaKG6FYnEI0zf0v/U+/KTRP0lFR2YF5a5m4+qL3HSP4
+XTwrdJNNQ53+neWeF8dAiM1kNfcoJfNxV3XdJHqp3db/lhT0uMiti+0XUAaYofnZ
+ZSfwQlYs3JNRVmYKkbYgABm+DAl9uQAjKzrX6dPGVhcEr/hsNMR1nHdF2FuPWyNW
+n5/g0PZekExJ+IIkUkzpf0NVJe0aje8Mj1DPzv0yyzxLC/u2xl4iiQoPTT6+tkh7
+W4AGl1WlUhcaOtfFJv3rxG5bDf2t6sFeqlGq9wl6bRInyYT9o7njvymCSIl0pzxy
+c04zJldk69eBGwNAH48XKurg2GB58Img+sL+xB8XEeoraOLBYYnUYHX5E8aQmNmd
+ntWr4EAig36SwZheugztKZwHr7r7Qr8NFOrPtsBgyLjChMEzWe8VHmdW1ZEIOKvQ
+FEVXWloBpk7sipZSNpDbgksCAwEAAQ==
+-----END PUBLIC KEY-----
+EOF
+  chmod 644 "$PUBKEY"
+}
 
 register_config() {
   php <<'PHP'
@@ -68,21 +86,21 @@ PHP
 
 case "$1" in
 install)
-  mkdir -p /usr/local/etc/pkg/repos "$FPR_DIR"
+  mkdir -p /usr/local/etc/pkg/repos
   cat > "$REPO_CONF" <<'EOF'
 community: {
     url: "https://tmiland-lab.github.io/pfsense-community-packages/repo",
     mirror_type: "NONE",
-    signature_type: "fingerprints",
-    fingerprints: "/usr/local/etc/pkg/fingerprints/community",
+    signature_type: "PUBKEY",
+    pubkey: "/usr/local/etc/pkg/community.pub",
     enabled: yes
 }
 EOF
-  printf 'function: sha256\nfingerprint: %s\n' "$FPR" > "$FPR_DIR/community"
-  chmod 644 "$FPR_DIR/community" "$REPO_CONF"
+  write_pubkey
+  chmod 644 "$REPO_CONF"
   register_config
   # Bootstrap repo metadata (best effort - the GUI can refresh later).
-  /usr/sbin/pkg-static update -r community >/dev/null 2>&1 || true
+  /usr/local/sbin/pkg-static update -r community >/dev/null 2>&1 || true
   ;;
 deinstall)
   unregister_config

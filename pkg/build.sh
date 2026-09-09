@@ -98,7 +98,7 @@ case "$FETCHLOG" in *FAIL*) echo "mirror fetch failed - aborting" >&2; exit 1;; 
 MPBASE="usr/local/pfsense-community"
 MWBASE="usr/local/www/packages/community"
 mkdir -p "$STAGE/$MPBASE/bin" "$STAGE/$MPBASE/share" "$STAGE/$MPBASE/sbin" \
-	"$STAGE/$MWBASE" "$STAGE/usr/local/etc/pkg/fingerprints/community/trusted"
+	"$STAGE/$MWBASE"
 install -m 0755 "$PKGDIR/files/usr-local-pfsense-community/bin/community.php" \
 	"$STAGE/$MPBASE/bin/community.php"
 install -m 0644 "$PKGDIR/files/usr-local-pfsense-community/share/community_lib.php" \
@@ -180,14 +180,7 @@ echo json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 echo "$MANIFEST" > "$META/+MANIFEST"
 pkg create -m "$META" -r "$STAGE" -o "$WORK/mpkg" >/dev/null
 find "$WORK/mpkg" -name '*.pkg' -exec mv {} "$STAGE/All/" \;
-
-# The manager package also ships the trust anchor for this repo's signature.
-FPR=$(openssl rsa -in "$SIGN_KEY" -pubout -outform DER 2>/dev/null | sha256 | awk '{print $NF}')
-printf 'function: sha256\nfingerprint: %s\n' "$FPR" > "$STAGE/usr/local/etc/pkg/fingerprints/community/trusted/community"
-# (Re-)create the manager package so the trust anchor is inside it.
-rm -rf "$WORK/mpkg"
-pkg create -m "$META" -r "$STAGE" -o "$WORK/mpkg" >/dev/null
-find "$WORK/mpkg" -name '*.pkg' -exec mv -f {} "$STAGE/All/" \;
+# (setup.sh ships the pubkey + repo conf; no second build pass needed.)
 
 # ------------------------------------------------------------------
 # 2b. ABI guard: every staged pkg must match this host's ABI (or wildcard)
@@ -217,6 +210,11 @@ if ($bad) {
 }
 echo "ABI guard: all " . count(glob($stage . "/All/*.pkg")) . " packages match FreeBSD:$major\n";
 ' "$STAGE" "$ABI" || { exit 1; }
+
+# The public key is published for manual client setup (PUBKEY mode).
+if [ -f "$SIGN_KEY" ]; then
+	openssl rsa -in "$SIGN_KEY" -pubout -out "$OUT/repo/community.pub" 2>/dev/null
+fi
 
 # ------------------------------------------------------------------
 # 3. Signed repo metadata + checksums + index
@@ -294,7 +292,7 @@ packages. Install/upgrade/remove them with the <a href="https://github.com/tmila
 <p class="muted">Mirrored packages keep their upstream provenance (URL, version and sha256)
 in <a href="https://github.com/tmiland-lab/pfsense-community-packages">packages/mirrors.json</a>
 and are verified at every build. Checksums: <a href="repo/CHECKSUMS.txt">repo/CHECKSUMS.txt</a>.</p>
-<p class="muted">Built with opencode. License: MIT.</p>
+<p class="muted">Built with <a href="https://opencode.ai/go?ref=00KNXXSB00">opencode</a> — the open-source AI coding agent for the terminal. License: MIT.</p>
 </div>
 </body>
 </html>
