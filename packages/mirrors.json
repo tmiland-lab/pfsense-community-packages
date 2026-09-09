@@ -30,6 +30,13 @@
       "license": "MIT"
     },
     {
+      "name": "pfSense-pkg-ovpn-totp",
+      "source": "own",
+      "repo_url": "https://tmiland-lab.github.io/pfsense-ovpn-totp/repo",
+      "upstream": "https://github.com/tmiland-lab/pfsense-ovpn-totp",
+      "license": "MIT"
+    },
+    {
       "name": "pfSense-pkg-RESTAPI",
       "source": "mirror",
       "version": "2.10.2",
