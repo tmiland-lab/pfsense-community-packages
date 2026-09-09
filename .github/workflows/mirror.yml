@@ -46,7 +46,10 @@ jobs:
           git worktree add gh-pages origin/gh-pages
           rm -rf gh-pages/repo gh-pages/index.html
           mkdir -p gh-pages/repo
-          cp -a "$GITHUB_WORKSPACE"/out/repo/. gh-pages/repo/
+          # -L: pkg(8) ships packagesite.txz/data.txz as symlinks to the .pkg
+          # files. Committed as symlinks, GitHub Pages serves the link TEXT
+          # and PUBKEY signature validation breaks on the box.
+          cp -aL "$GITHUB_WORKSPACE"/out/repo/. gh-pages/repo/
           cp "$GITHUB_WORKSPACE"/out/index.html gh-pages/index.html
           cd gh-pages
           git add -A index.html repo
