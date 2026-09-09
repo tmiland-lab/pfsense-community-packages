@@ -191,15 +191,16 @@ $stage = $argv[1]; $abi = $argv[2];
 $major = explode(":", $abi)[1] ?? "";
 $bad = array();
 foreach (glob($stage . "/All/*.pkg") as $f) {
+    $n++;
     exec("pkg info -F " . escapeshellarg($f) . " 2>/dev/null", $o, $rc);
     $arch = "";
     foreach ($o as $line) {
-        if (preg_match("/^Architecture\s*:\s*(\S+)/", $line, $m)) { $arch = $m[1]; break; }
+        if (preg_match("/^Architecture\s*:\s*(.+)$/", trim($line), $m)) { $arch = trim($m[1]); break; }
     }
     $o = [];
     $parts = explode(":", $arch);
-    $ok = (strpos($arch, ":*:") !== false) ||
-        (($parts[0] ?? "") === "FreeBSD" && (($parts[1] ?? "") === $major || ($parts[1] ?? "") === "*"));
+    $ok = ($arch === "*") ||
+        ((($parts[0] ?? "") === "FreeBSD") && in_array($parts[1] ?? "*", array($major, "*")));
     if (!$ok) {
         $bad[] = basename($f) . " => " . $arch;
     }
@@ -208,7 +209,7 @@ if ($bad) {
     echo "FAIL abi mismatch (expected FreeBSD:$major):\n" . implode("\n", $bad) . "\n";
     exit(1);
 }
-echo "ABI guard: all " . count(glob($stage . "/All/*.pkg")) . " packages match FreeBSD:$major\n";
+echo "ABI guard: all " . $n . " packages match FreeBSD:$major\n";
 ' "$STAGE" "$ABI" || { exit 1; }
 
 # The public key is published for manual client setup (PUBKEY mode).
