@@ -45,6 +45,16 @@ $tab_array = array(
 );
 display_top_tabs($tab_array);
 
+/* View preference: grouped by source repository (default) or flat
+ * alphabetical. Toggled by link (GET) and carried through package
+ * actions via a hidden form field (POST). */
+$group_flat = false;
+if (isset($_POST['group'])) {
+	$group_flat = ($_POST['group'] == 'flat');
+} elseif (isset($_GET['group'])) {
+	$group_flat = ($_GET['group'] == 'flat');
+}
+
 if ($input_errors) {
 	print_input_errors($input_errors);
 }
@@ -69,11 +79,44 @@ $section->addInput(new Form_Button(
 	null,
 	'fa-solid fa-arrows-rotate'
 ))->setHelp(gettext('Re-downloads the repository metadata (pkg update -f -r community).'));
+$form->addGlobal(new Form_Input(
+	'group',
+	null,
+	'hidden',
+	$group_flat ? 'flat' : 'grouped'
+));
 $form->add($section);
 print $form;
 ?>
+<?php
+/* Display order: grouped by source repository (community first, then
+ * official) or flat - in both cases case-insensitive by package name. */
+if ($group_flat) {
+	$display = $available;
+	uksort($display, 'strcasecmp');
+} else {
+	$community_rows = array();
+	$official_rows = array();
+	foreach ($available as $key => $row) {
+		if ($row['repo'] == 'community') {
+			$community_rows[$key] = $row;
+		} else {
+			$official_rows[$key] = $row;
+		}
+	}
+	uksort($community_rows, 'strcasecmp');
+	uksort($official_rows, 'strcasecmp');
+	$display = $community_rows + $official_rows;
+}
+?>
 <div class="panel panel-default">
-	<div class="panel-heading"><h2 class="panel-title"><?= gettext('Packages') ?></h2></div>
+	<div class="panel-heading">
+		<h2 class="panel-title"><?= gettext('Packages') ?></h2>
+		<span class="pull-right community-viewtoggle"><?= gettext('View') ?>:
+			<a href="/packages/community/index.php?group=grouped" class="<?= $group_flat ? '' : 'community-viewactive' ?>"><?= gettext('Grouped') ?></a> |
+			<a href="/packages/community/index.php?group=flat" class="<?= $group_flat ? 'community-viewactive' : '' ?>"><?= gettext('Flat') ?></a>
+		</span>
+	</div>
 	<div class="table-responsive">
 		<table class="table table-striped table-hover table-condensed">
 		<thead>
@@ -88,19 +131,20 @@ print $form;
 			</tr>
 		</thead>
 		<tbody>
-<?php $lastsrc = ''; foreach ($available as $row):
+<?php $lastsrc = ''; foreach ($display as $row):
 	$inst = $installed[$row['name']] ?? null;
 	$status = cpm_status($inst, $row['version']);
-	if ($row['repo'] !== $lastsrc):
+	$link = cpm_repo_link($row);
+	if (!$group_flat && $row['repo'] !== $lastsrc):
 		$lastsrc = $row['repo']; ?>
 				<tr><td colspan="7" style="font-weight:600;"><?= $row['repo'] == 'community' ? gettext('Community repository (ours + mirrors)') : gettext('Official repository (manageable add-ons)') ?></td></tr>
 <?php endif; ?>
 				<tr>
-					<td><code><?= htmlspecialchars($row['name']) ?></code></td>
+					<td><code><?= $link ? '<a href="' . htmlspecialchars($link, ENT_QUOTES) . '" target="_blank" rel="noopener noreferrer">' . htmlspecialchars($row['name']) . '</a>' : htmlspecialchars($row['name']) ?></code></td>
 					<td><?= htmlspecialchars($row['comment']) ?></td>
 					<td><span class="label <?= $row['repo'] == 'community' ? 'label-primary' : 'label-default' ?>"><?= $row['repo'] == 'community' ? gettext('Community') : gettext('Official') ?></span></td>
-					<td><?= $inst !== null ? htmlspecialchars($inst) : '<span class="community-muted">-</span>' ?></td>
-					<td><?= htmlspecialchars($row['version']) ?></td>
+					<td><?= $inst !== null ? '<span class="community-version' . ($status == 'update' ? ' community-version-muted' : '') . '">' . htmlspecialchars($inst) . '</span>' : '<span class="community-muted">-</span>' ?></td>
+					<td><span class="community-version<?= $status == 'update' ? ' community-version-new' : '' ?>"><?= htmlspecialchars($row['version']) ?></span></td>
 					<td>
 <?php if ($status == 'not-installed'): ?>
 						<span class="label label-default"><?= gettext('Not installed') ?></span>
@@ -117,6 +161,7 @@ print $form;
 						<form method="post" class="community-inlineform">
 							<input type="hidden" name="cpmaction" value="install" />
 							<input type="hidden" name="pkgname" value="<?= htmlspecialchars($row['name']) ?>" />
+							<input type="hidden" name="group" value="<?= $group_flat ? 'flat' : 'grouped' ?>" />
 							<button type="submit" class="btn btn-xs btn-primary"><?= gettext('Install') ?></button>
 						</form>
 <?php else: ?>
@@ -124,12 +169,14 @@ print $form;
 						<form method="post" class="community-inlineform">
 							<input type="hidden" name="cpmaction" value="upgrade" />
 							<input type="hidden" name="pkgname" value="<?= htmlspecialchars($row['name']) ?>" />
+							<input type="hidden" name="group" value="<?= $group_flat ? 'flat' : 'grouped' ?>" />
 							<button type="submit" class="btn btn-xs btn-warning"><?= gettext('Upgrade') ?></button>
 						</form>
 <?php endif; ?>
 						<form method="post" class="community-inlineform">
 							<input type="hidden" name="cpmaction" value="delete" />
 							<input type="hidden" name="pkgname" value="<?= htmlspecialchars($row['name']) ?>" />
+							<input type="hidden" name="group" value="<?= $group_flat ? 'flat' : 'grouped' ?>" />
 							<button type="submit" class="btn btn-xs btn-danger community-delete"
 								onclick="return confirm('<?= gettext('Remove this package from the firewall?') ?>')">
 								<?= gettext('Delete') ?></button>
@@ -156,13 +203,30 @@ print $form;
 </div>
 <?php endif; ?>
 
-<script type="text/javascript">
-//<![CDATA[
-	/* Theme-agnostic layout helpers. */
-	$('.community-inlineform').css('display', 'inline-block').css('margin-left', '4px');
-	$('.community-muted').css('opacity', '0.5');
-	$('.community-output').css('white-space', 'pre-wrap').css('margin', '0');
-//]]>
-</script>
+<style>
+/* Layout helpers as plain CSS: pfSense loads jQuery only in foot.inc,
+ * after the page body - inline $() scripts never ran on the real GUI.
+ * Chip colors are gray-alpha based so they stay visible on the light
+ * and dark pfSense themes alike. */
+.community-inlineform { display: inline-block; margin-left: 4px; }
+.community-muted { opacity: 0.5; }
+.community-output { white-space: pre-wrap; margin: 0; }
+.community-version {
+	font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+	display: inline-block;
+	padding: 1px 7px;
+	border-radius: 4px;
+	border: 1px solid rgba(127, 127, 127, 0.55);
+	background: rgba(127, 127, 127, 0.30);
+}
+.community-version-muted { opacity: 0.55; }
+.community-version-new {
+	border-color: #f0ad4e;
+	background: rgba(240, 173, 78, 0.30);
+}
+.community-viewtoggle { font-size: 11px; font-weight: 400; }
+.community-viewtoggle a { font-size: 11px; }
+.community-viewactive { font-weight: 700; text-decoration: underline; }
+</style>
 
 <?php include('foot.inc'); ?>

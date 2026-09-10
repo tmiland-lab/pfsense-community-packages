@@ -111,6 +111,20 @@ for page in "$PKGDIR"/files/usr-local-www-packages-community/*.php; do
 	install -m 0644 "$page" "$STAGE/$MWBASE/$(basename "$page")"
 done
 
+# Ship the curated package -> upstream-project URL map (rendered links
+# on the manager page; pkg %w values are unreliable for mirrors).
+php -r '
+$manifest = json_decode(file_get_contents($argv[1]), true);
+$links = array();
+foreach (($manifest["packages"] ?? array()) as $p) {
+	if (!empty($p["name"]) && !empty($p["upstream"])) {
+		$links[strtolower($p["name"])] = $p["upstream"];
+	}
+}
+$links["pfsense-pkg-community"] = "https://github.com/tmiland-lab/pfsense-community-packages";
+file_put_contents($argv[2], json_encode($links, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
+' "$REPO/packages/mirrors.json" "$STAGE/$MPBASE/share/community_repos.json"
+
 php -l "$STAGE/$MPBASE/share/community_lib.php" >/dev/null
 php -l "$STAGE/$MPBASE/bin/community.php" >/dev/null
 php -l "$STAGE/$MWBASE/index.php" >/dev/null
@@ -247,7 +261,14 @@ foreach ($yaml as $line) {
 usort($rows, function ($a, $b) { return strcasecmp($a["name"], $b["name"]); });
 $manifest = json_decode(file_get_contents($argv[3]), true);
 $lic = array();
-foreach ($manifest["packages"] as $p) { $lic[strtolower($p["name"])] = $p["license"] ?? ""; }
+$links = array();
+foreach ($manifest["packages"] as $p) {
+	$lic[strtolower($p["name"])] = $p["license"] ?? "";
+	if (!empty($p["upstream"])) {
+		$links[strtolower($p["name"])] = $p["upstream"];
+	}
+}
+$links["pfsense-pkg-community"] = "https://github.com/tmiland-lab/pfsense-community-packages";
 function h($s) { return htmlspecialchars((string)$s, ENT_QUOTES); }
 ob_start(); ?>
 <!DOCTYPE html>
@@ -266,6 +287,7 @@ ob_start(); ?>
   th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #303030; }
   th { color: #9e9e9e; font-weight: 600; }
   .muted { color: #9e9e9e; }
+  .ver { font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; display: inline-block; padding: 1px 7px; border-radius: 4px; border: 1px solid #414141; background: #303030; font-size: 0.92em; }
 </style>
 </head>
 <body>
@@ -281,12 +303,13 @@ packages. Install/upgrade/remove them with the <a href="https://github.com/tmila
 <table>
 <tr><th>Package</th><th>Version</th><th>Description</th><th>License</th><th>Size (flatsize)</th></tr>
 <?php foreach ($rows as $r): ?>
+<?php $u = $links[strtolower($r["name"])] ?? ""; ?>
 <tr>
-<td><code><?= h($r["name"]) ?></code></td>
-<td><?= h($r["version"]) ?></td>
+<td><code><?php if ($u): ?><a href="<?= h($u) ?>"><?= h($r["name"]) ?></a><?php else: ?><?= h($r["name"]) ?><?php endif; ?></code></td>
+<td><span class="ver"><?= h($r["version"]) ?></span></td>
 <td><?= h($r["comment"]) ?></td>
 <td><?= h($lic[strtolower($r["name"])] ?? "") ?></td>
-<td><?= number_format((int)$r["size"]) ?></td>
+<td><?= number_format((int)$r["flatsize"]) ?></td>
 </tr>
 <?php endforeach; ?>
 </table>

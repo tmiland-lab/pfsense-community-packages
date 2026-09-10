@@ -15,24 +15,26 @@ if (!defined('CPM_REPO')) {
 	define('CPM_REPO', 'community');
 	define('CPM_BASE', '/usr/local/pfsense-community');
 	define('CPM_PKG', '/usr/local/sbin/pkg-static');
+	define('CPM_LINKS', CPM_BASE . '/share/community_repos.json');
 }
 
 /* All packages offered by the unified community repository, plus the
  * official repository's manageable packages (pfSense-pkg-*, the status
  * monitoring add-on) - everything else in the official repo is core
- * system material and is excluded. Each row carries its source repo. */
+ * system material and is excluded. Each row carries its source repo and
+ * the package's declared home page (pkg %w). */
 function cpm_available() {
 	$rows = array();
 	$out = array();
-	exec(CPM_PKG . ' rquery -r ' . CPM_REPO . ' \'%n|%v|%c|%o\' 2>/dev/null', $out, $rc);
+	exec(CPM_PKG . ' rquery -r ' . CPM_REPO . ' \'%n|%v|%c|%o|%w\' 2>/dev/null', $out, $rc);
 	if ($rc != 0 || empty($out)) {
 		cpm_repo_update(true);
 		$out = array();
-		exec(CPM_PKG . ' rquery -r ' . CPM_REPO . ' \'%n|%v|%c|%o\' 2>/dev/null', $out, $rc);
+		exec(CPM_PKG . ' rquery -r ' . CPM_REPO . ' \'%n|%v|%c|%o|%w\' 2>/dev/null', $out, $rc);
 	}
 	foreach ($out as $line) {
 		$f = explode('|', $line);
-		if (count($f) < 4) {
+		if (count($f) < 5) {
 			continue;
 		}
 		$rows[$f[0]] = array(
@@ -40,15 +42,16 @@ function cpm_available() {
 			'version' => $f[1],
 			'comment' => $f[2],
 			'origin' => $f[3],
+			'www' => $f[4],
 			'repo' => CPM_REPO,
 		);
 	}
 	/* Official repo packages (core files excluded - see cpm_manageable()). */
 	$out = array();
-	exec(CPM_PKG . ' rquery -r pfSense \'%n|%v|%c|%o\' 2>/dev/null', $out);
+	exec(CPM_PKG . ' rquery -r pfSense \'%n|%v|%c|%o|%w\' 2>/dev/null', $out);
 	foreach ($out as $line) {
 		$f = explode('|', $line);
-		if (count($f) < 4 || !cpm_manageable($f[0])) {
+		if (count($f) < 5 || !cpm_manageable($f[0])) {
 			continue;
 		}
 		if (!isset($rows[$f[0]])) {
@@ -57,6 +60,7 @@ function cpm_available() {
 				'version' => $f[1],
 				'comment' => $f[2],
 				'origin' => $f[3],
+				'www' => $f[4],
 				'repo' => 'pfSense',
 			);
 		}
@@ -71,6 +75,50 @@ function cpm_available() {
 function cpm_manageable($name) {
 	return (stripos($name, 'pfSense-pkg-') === 0 ||
 		stripos($name, 'pfSense-Status_Monitoring') === 0);
+}
+
+/* Curated package -> upstream-project URLs, shipped in
+ * share/community_repos.json (generated from packages/mirrors.json at
+ * build time). Returns name (lowercased) => url. */
+function cpm_repo_links() {
+	static $links = null;
+	if ($links === null) {
+		$links = array();
+		if (is_file(CPM_LINKS)) {
+			$decoded = json_decode((string)@file_get_contents(CPM_LINKS), true);
+			if (is_array($decoded)) {
+				foreach ($decoded as $name => $url) {
+					if (is_string($name) && is_string($url) && $url !== '') {
+						$links[strtolower($name)] = $url;
+					}
+				}
+			}
+		}
+	}
+	return $links;
+}
+
+/* Upstream project URL for one available row (or plain name), or null.
+ * The curated map wins: several mirrored packages declare garbage www
+ * values ("UNKNOWN", template placeholders, the upstream application
+ * instead of the pfSense package repo). */
+function cpm_repo_link($row) {
+	$name = is_array($row) ? (string)($row['name'] ?? '') : (string)$row;
+	if ($name === '') {
+		return null;
+	}
+	$links = cpm_repo_links();
+	if (isset($links[strtolower($name)])) {
+		return $links[strtolower($name)];
+	}
+	$www = is_array($row) ? trim((string)($row['www'] ?? '')) : '';
+	if (!(stripos($www, 'http://') === 0 || stripos($www, 'https://') === 0)) {
+		return null;
+	}
+	if (stripos($www, 'unknown') !== false || stripos($www, 'your_username') !== false) {
+		return null;
+	}
+	return $www;
 }
 
 /* Installed package versions (name => version). */

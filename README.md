@@ -71,6 +71,14 @@ One page, every package, inline status:
 - A *Refresh repository metadata* button (`pkg update -f -r community`)
 - The official repository's add-on packages are listed and managed on the
   same page (core system files are excluded and left to pfSense upgrades)
+- Package names link to their upstream project repositories (curated
+  URLs from `packages/mirrors.json` for community packages; the package's
+  declared home page for official ones)
+- Versions are shown as monospace chips — installed and available side by
+  side, with the available version highlighted when an update exists
+- **View: Grouped / Flat** — group the list by source repository
+  (community first, then official) or switch to a plain alphabetical
+  listing; the preference is kept across package actions
 
 Every operation runs `pkg-static` synchronously and shows its output on the
 same page. CLI equivalent:
