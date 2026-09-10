@@ -1,0 +1,16 @@
+{
+  "_comment": "Upstream activity monitored by .github/workflows/upstream-monitor.yml. 'issues' = our notification issues on upstream repos (GitHub REST API; the public Atom feeds were removed); 'forum' = NodeBB topic IDs (JSON API). Upstream release tags are derived from packages/mirrors.json.",
+  "issues": [
+    "https://github.com/pfrest/pfSense-pkg-RESTAPI/issues/945",
+    "https://github.com/pfrest/pfSense-pkg-saml2-auth/issues/117",
+    "https://github.com/MarceloMayo74/pfsense-wgeasy/issues/1",
+    "https://github.com/3um3le3ee/pfSense-wireguard-peer-export/issues/12",
+    "https://github.com/nopoz/pfsense-dnscrypt-proxy/issues/44",
+    "https://github.com/mmahrous/pfSense-pkg-Mullvad/issues/1"
+  ],
+  "forum": [
+    "https://forum.netgate.com/topic/201354.rss",
+    "https://forum.netgate.com/topic/201336.rss",
+    "https://forum.netgate.com/topic/201335.rss"
+  ]
+}

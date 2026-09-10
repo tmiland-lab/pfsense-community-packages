@@ -1,0 +1,48 @@
+{
+  "forum": {
+    "https://forum.netgate.com/topic/201335.rss": 1,
+    "https://forum.netgate.com/topic/201336.rss": 1,
+    "https://forum.netgate.com/topic/201354.rss": 1
+  },
+  "issues": {
+    "https://github.com/3um3le3ee/pfSense-wireguard-peer-export/issues/12": {
+      "comments": 0,
+      "state": "open"
+    },
+    "https://github.com/MarceloMayo74/pfsense-wgeasy/issues/1": {
+      "comments": 0,
+      "state": "open"
+    },
+    "https://github.com/mmahrous/pfSense-pkg-Mullvad/issues/1": {
+      "comments": 0,
+      "state": "open"
+    },
+    "https://github.com/nopoz/pfsense-dnscrypt-proxy/issues/44": {
+      "comments": 0,
+      "state": "open"
+    },
+    "https://github.com/pfrest/pfSense-pkg-RESTAPI/issues/945": {
+      "comments": 0,
+      "state": "open"
+    },
+    "https://github.com/pfrest/pfSense-pkg-saml2-auth/issues/117": {
+      "comments": 0,
+      "state": "open"
+    }
+  },
+  "releases": {
+    "3um3le3ee/pfSense-wireguard-peer-export": "v1.1.0",
+    "MarceloMayo74/pfsense-wgeasy": "v0.4.3",
+    "mmahrous/pfSense-pkg-Mullvad": "v0.1.0",
+    "nopoz/pfsense-dnscrypt-proxy": "v1.2.10",
+    "pfrest/pfSense-pkg-RESTAPI": "v2.10.2",
+    "pfrest/pfSense-pkg-saml2-auth": "v2.1.0",
+    "tmiland-lab/pfsense-airvpn-remotes": "v0.2.3",
+    "tmiland-lab/pfsense-configbackup": "v0.1.6",
+    "tmiland-lab/pfsense-ovpn-totp": "v0.1.0",
+    "tmiland-lab/pfsense-theme-lightdark": "v0.2.3",
+    "tmiland-lab/pfsense-vpn-providers": "v0.1.10",
+    "tmiland/pfsense-abuseipdb": "v0.8.9",
+    "tmiland/pfsense-adguardhome": "v1.1.2"
+  }
+}
