@@ -109,7 +109,13 @@ foreach ($manifest["packages"] as $p) {
                 $p["upstream"] ?? "");
             continue;
         }
-        $dest = $stage . "/All/" . basename($path);
+        $base = basename($path);
+        if (substr($base, -4) === ".txz") {
+            /* pkg repo + the staging copy only handle .pkg-named files;
+             * the content is identical, just the name differs. */
+            $base = substr($base, 0, -4) . ".pkg";
+        }
+        $dest = $stage . "/All/" . $base;
     }
     $cmd = sprintf("fetch -qo %s %s", escapeshellarg($dest), escapeshellarg($url));
     exec($cmd, $o, $rc);
