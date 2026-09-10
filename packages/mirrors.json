@@ -106,42 +106,6 @@
       "abi": "pfSense 2.8.x"
     },
     {
-      "name": "pfSense-pkg-crowdsec",
-      "source": "mirror",
-      "version": "0.1.8",
-      "url": "https://github.com/crowdsecurity/pfSense-pkg-crowdsec/releases/download/v0.1.8-1.7.8-34/freebsd-15-amd64.tar",
-      "member": "pfSense-pkg-crowdsec-0.1.8.pkg",
-      "sha256": "03265e6e90b6ffeb41828066b1c16ab4834ed708b3847a0c1a56b9650e574905",
-      "upstream": "https://github.com/crowdsecurity/pfSense-pkg-crowdsec",
-      "upstream_publishes_checksums": false,
-      "license": "Apache-2.0",
-      "abi": "pfSense 2.8.1 (FreeBSD 15)"
-    },
-    {
-      "name": "crowdsec",
-      "source": "mirror",
-      "version": "1.7.8",
-      "url": "https://github.com/crowdsecurity/pfSense-pkg-crowdsec/releases/download/v0.1.8-1.7.8-34/freebsd-15-amd64.tar",
-      "member": "crowdsec-1.7.8.pkg",
-      "sha256": "03265e6e90b6ffeb41828066b1c16ab4834ed708b3847a0c1a56b9650e574905",
-      "upstream": "https://github.com/crowdsecurity/crowdsec",
-      "upstream_publishes_checksums": false,
-      "license": "MIT",
-      "abi": "pfSense 2.8.1 (FreeBSD 15)"
-    },
-    {
-      "name": "crowdsec-firewall-bouncer",
-      "source": "mirror",
-      "version": "0.0.34",
-      "url": "https://github.com/crowdsecurity/pfSense-pkg-crowdsec/releases/download/v0.1.8-1.7.8-34/freebsd-15-amd64.tar",
-      "member": "crowdsec-firewall-bouncer-0.0.34.pkg",
-      "sha256": "03265e6e90b6ffeb41828066b1c16ab4834ed708b3847a0c1a56b9650e574905",
-      "upstream": "https://github.com/crowdsecurity/cs-firewall-bouncer",
-      "upstream_publishes_checksums": false,
-      "license": "MIT",
-      "abi": "pfSense 2.8.1 (FreeBSD 15)"
-    },
-    {
       "name": "pfSense-pkg-Mullvad",
       "source": "mirror",
       "version": "0.1.0",
@@ -157,6 +121,22 @@
     {
       "name": "pfSense-pkg-WireGuard-ClientExport",
       "reason": "upstream 0.1.0.b1 is built for FreeBSD:14:amd64 (pfSense 2.7 era) - wrong ABI for 2.8.1; revisit when upstream ships a 2.8.x build"
+    },
+    {
+      "name": "pfSense-pkg-crowdsec (with crowdsec + crowdsec-firewall-bouncer deps)",
+      "reason": "upstream v0.1.8 freebsd-15 tar is poudriere-built on FreeBSD 15.0-RELEASE: the pkgs carry FreeBSD_version 1500068, newer than the pfSense 2.8.1 userland (osreldate 1500029) - pkg is_valid_os_version() rejects the WHOLE repository on 2.8.1. Revisit when upstream builds against a 2.8.1-era snapshot or pfSense moves to 15.0-RELEASE"
+    },
+    {
+      "name": "pfSense-pkg-frp",
+      "reason": "wrapper pkg declares a dependency on the frp binary package which upstream does not publish as a release asset - uninstallable as mirrored"
+    },
+    {
+      "name": "pfSense-pkg-AmneziaWG-go / amneziawg-client",
+      "reason": "ships a kernel module (amnezia-kmod) built for the stock FreeBSD kernel - pfSense runs a custom kernel, kmod will not load; also distributed as zip+install.sh, not a pkg release asset"
+    },
+    {
+      "name": "pfSense-pkg-ZeroTier (community forks)",
+      "reason": "CaseyRaybackPH fork: FreeBSD:14:amd64 + no license file (cannot redistribute); ChanceM original: last push 2022 (2.6/2.7 era)"
     }
   ]
 }

@@ -243,11 +243,15 @@ find "$WORK/mpkg" -name '*.pkg' -exec mv {} "$STAGE/All/" \;
 # (setup.sh ships the pubkey + repo conf; no second build pass needed.)
 
 # ------------------------------------------------------------------
-# 2b. ABI guard: every staged pkg must match this host's ABI (or wildcard)
+# 2b. ABI + osversion guard: every staged pkg must match this host's ABI
+# (or wildcard) AND not be built on a newer FreeBSD userland than the
+# target (pkg is_valid_os_version() rejects the whole repo otherwise).
 # ------------------------------------------------------------------
 ABI=$(pkg config abi)
+# pfSense 2.8.1 CE userland. Bump when the repo targets a newer pfSense.
+TARGET_OSVERSION=${TARGET_OSVERSION:-1500029}
 php -r '
-$stage = $argv[1]; $abi = $argv[2];
+$stage = $argv[1]; $abi = $argv[2]; $osver = (int)$argv[3];
 $major = explode(":", $abi)[1] ?? "";
 $bad = array();
 foreach (array_merge(glob($stage . "/All/*.pkg"), glob($stage . "/All/*.txz")) as $f) {
@@ -264,13 +268,26 @@ foreach (array_merge(glob($stage . "/All/*.pkg"), glob($stage . "/All/*.txz")) a
     if (!$ok) {
         $bad[] = basename($f) . " => " . $arch;
     }
+    /* poudriere stamps FreeBSD_version; newer-than-target userland gets
+     * the whole repository rejected by pkg on the firewall. */
+    $mo = array();
+    exec("tar -xOf " . escapeshellarg($f) . " +MANIFEST 2>/dev/null", $mo, $mrc);
+    if ($mrc == 0) {
+        $man = json_decode(implode("", $mo), true);
+        $pv = (int)($man["annotations"]["FreeBSD_version"] ?? 0);
+        if ($pv > $osver) {
+            $ok = false;
+            $bad[] = basename($f) . " => FreeBSD_version " . $pv . " is newer than target " . $osver;
+        }
+    }
+    $mo = array();
 }
 if ($bad) {
-    echo "FAIL abi mismatch (expected FreeBSD:$major):\n" . implode("\n", $bad) . "\n";
+    echo "FAIL abi/osversion mismatch (expected FreeBSD:$major, osversion <= $osver):\n" . implode("\n", $bad) . "\n";
     exit(1);
 }
-echo "ABI guard: all " . $n . " packages match FreeBSD:$major\n";
-' "$STAGE" "$ABI" || { exit 1; }
+echo "ABI guard: all " . $n . " packages match FreeBSD:$major, osversion <= $osver\n";
+' "$STAGE" "$ABI" "$TARGET_OSVERSION" || { exit 1; }
 
 # The public key is published for manual client setup (PUBKEY mode).
 if [ -f "$SIGN_KEY" ]; then

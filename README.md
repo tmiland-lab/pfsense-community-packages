@@ -35,7 +35,6 @@ DNSCrypt on firewalls after Netgate dropped them from the 2.8.x repo.
 | pfSense-pkg-dnscrypt-proxy | [nopoz](https://github.com/nopoz/pfsense-dnscrypt-proxy) (mirror) | ISC |
 | pfSense-pkg-wgeasy | [MarceloMayo74](https://github.com/MarceloMayo74/pfsense-wgeasy) (mirror) | Apache-2.0 |
 | pfSense-pkg-wg-export | [3um3le3ee](https://github.com/3um3le3ee/pfSense-wireguard-peer-export) (mirror) | GPL-3.0 |
-| pfSense-pkg-crowdsec | [crowdsecurity](https://github.com/crowdsecurity/pfSense-pkg-crowdsec) (mirror; bundles the `crowdsec` agent + firewall bouncer as dependencies) | Apache-2.0 |
 | pfSense-pkg-Mullvad | [mmahrous](https://github.com/mmahrous/pfSense-pkg-Mullvad) (mirror) | Apache-2.0 |
 
 Live listing: <https://tmiland-lab.github.io/pfsense-community-packages/>
@@ -104,6 +103,9 @@ same page. CLI equivalent:
   reviewed build and is re-checked at every build.
 - **ABI guard**: every staged package is checked against the target ABI at
   build time; mismatches fail the build (see `_excluded` in `mirrors.json`).
+  Packages built on a *newer* FreeBSD userland than the target (poudriere's
+  `FreeBSD_version` annotation) also fail the build — pkg would otherwise
+  reject the whole repository on the firewall.
 - **First-party packages** resolve to the newest build from their own
   repository at build time.
 - Mirrors are refreshed weekly by
