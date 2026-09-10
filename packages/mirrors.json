@@ -1,5 +1,5 @@
 {
-  "_comment": "Unified community package sources for the pfSense Community Packages repo. 'own' entries resolve the newest .pkg from the given pkg repo's packagesite at build time. 'mirror' entries are pinned upstream release assets verified against 'sha256' (fail hard on mismatch).",
+  "_comment": "Unified community package sources for the pfSense Community Packages repo. 'own' entries resolve the newest .pkg from the given pkg repo's packagesite at build time. 'mirror' entries are pinned upstream release assets verified against 'sha256' (fail hard on mismatch); for release tar assets a 'member' names the pkg file inside the tar (several entries may share one tar).",
   "packages": [
     {
       "name": "pfSense-pkg-configbackup",
@@ -104,6 +104,53 @@
       "upstream_publishes_checksums": true,
       "license": "ISC",
       "abi": "pfSense 2.8.x"
+    },
+    {
+      "name": "pfSense-pkg-crowdsec",
+      "source": "mirror",
+      "version": "0.1.8",
+      "url": "https://github.com/crowdsecurity/pfSense-pkg-crowdsec/releases/download/v0.1.8-1.7.8-34/freebsd-15-amd64.tar",
+      "member": "pfSense-pkg-crowdsec-0.1.8.pkg",
+      "sha256": "03265e6e90b6ffeb41828066b1c16ab4834ed708b3847a0c1a56b9650e574905",
+      "upstream": "https://github.com/crowdsecurity/pfSense-pkg-crowdsec",
+      "upstream_publishes_checksums": false,
+      "license": "Apache-2.0",
+      "abi": "pfSense 2.8.1 (FreeBSD 15)"
+    },
+    {
+      "name": "crowdsec",
+      "source": "mirror",
+      "version": "1.7.8",
+      "url": "https://github.com/crowdsecurity/pfSense-pkg-crowdsec/releases/download/v0.1.8-1.7.8-34/freebsd-15-amd64.tar",
+      "member": "crowdsec-1.7.8.pkg",
+      "sha256": "03265e6e90b6ffeb41828066b1c16ab4834ed708b3847a0c1a56b9650e574905",
+      "upstream": "https://github.com/crowdsecurity/crowdsec",
+      "upstream_publishes_checksums": false,
+      "license": "MIT",
+      "abi": "pfSense 2.8.1 (FreeBSD 15)"
+    },
+    {
+      "name": "crowdsec-firewall-bouncer",
+      "source": "mirror",
+      "version": "0.0.34",
+      "url": "https://github.com/crowdsecurity/pfSense-pkg-crowdsec/releases/download/v0.1.8-1.7.8-34/freebsd-15-amd64.tar",
+      "member": "crowdsec-firewall-bouncer-0.0.34.pkg",
+      "sha256": "03265e6e90b6ffeb41828066b1c16ab4834ed708b3847a0c1a56b9650e574905",
+      "upstream": "https://github.com/crowdsecurity/cs-firewall-bouncer",
+      "upstream_publishes_checksums": false,
+      "license": "MIT",
+      "abi": "pfSense 2.8.1 (FreeBSD 15)"
+    },
+    {
+      "name": "pfSense-pkg-Mullvad",
+      "source": "mirror",
+      "version": "0.1.0",
+      "url": "https://github.com/mmahrous/pfSense-pkg-Mullvad/releases/download/v0.1.0/pfSense-pkg-Mullvad-0.1.0-freebsd15.txz",
+      "sha256": "5d2303448a04c2c1cf2a65de274ad18aeec80c5b422a03447a0f090bbaf45844",
+      "upstream": "https://github.com/mmahrous/pfSense-pkg-Mullvad",
+      "upstream_publishes_checksums": false,
+      "license": "Apache-2.0",
+      "abi": "pfSense 2.8.1 (FreeBSD 15)"
     }
   ],
   "_excluded": [

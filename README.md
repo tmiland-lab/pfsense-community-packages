@@ -35,6 +35,8 @@ DNSCrypt on firewalls after Netgate dropped them from the 2.8.x repo.
 | pfSense-pkg-dnscrypt-proxy | [nopoz](https://github.com/nopoz/pfsense-dnscrypt-proxy) (mirror) | ISC |
 | pfSense-pkg-wgeasy | [MarceloMayo74](https://github.com/MarceloMayo74/pfsense-wgeasy) (mirror) | Apache-2.0 |
 | pfSense-pkg-wg-export | [3um3le3ee](https://github.com/3um3le3ee/pfSense-wireguard-peer-export) (mirror) | GPL-3.0 |
+| pfSense-pkg-crowdsec | [crowdsecurity](https://github.com/crowdsecurity/pfSense-pkg-crowdsec) (mirror; bundles the `crowdsec` agent + firewall bouncer as dependencies) | Apache-2.0 |
+| pfSense-pkg-Mullvad | [mmahrous](https://github.com/mmahrous/pfSense-pkg-Mullvad) (mirror) | Apache-2.0 |
 
 Live listing: <https://tmiland-lab.github.io/pfsense-community-packages/>
 

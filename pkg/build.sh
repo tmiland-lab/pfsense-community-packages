@@ -69,7 +69,47 @@ foreach ($manifest["packages"] as $p) {
         $dest = $stage . "/All/" . $file;
     } else {
         $url = $p["url"];
-        $dest = $stage . "/All/" . basename(parse_url($url, PHP_URL_PATH));
+        $path = parse_url($url, PHP_URL_PATH);
+        if (substr($path, -4) === ".tar") {
+            /* Release tar asset: fetch once per URL, verify the tar
+             * sha256, extract the named member pkg into the stage.
+             * Several entries may share one tar (e.g. the crowdsec
+             * release bundles agent + bouncer + wrapper). */
+            $member = basename($p["member"] ?? "");
+            if ($member === "" || $member !== ($p["member"] ?? "")) {
+                echo "FAIL {$p["name"]}: tar asset requires a member file name\n";
+                exit(1);
+            }
+            $tarfile = $scratch . "/asset-" . md5($url) . ".tar";
+            if (!is_file($tarfile)) {
+                exec(sprintf("fetch -qo %s %s", escapeshellarg($tarfile),
+                    escapeshellarg($url)), $o, $rc);
+                $o = [];
+                if ($rc != 0 || !filesize($tarfile)) {
+                    echo "FAIL {$p["name"]}: cannot fetch $url\n";
+                    exit(1);
+                }
+            }
+            $got = hash_file("sha256", $tarfile);
+            if (isset($p["sha256"])) {
+                if (!hash_equals($p["sha256"], $got)) {
+                    echo "FAIL {$p["name"]}: sha256 MISMATCH (expected {$p["sha256"]}, got $got)\n";
+                    exit(1);
+                }
+            }
+            $dest = $stage . "/All/" . $member;
+            exec(sprintf("tar -xf %s -C %s %s", escapeshellarg($tarfile),
+                escapeshellarg($stage . "/All"), escapeshellarg($member)), $o, $rc);
+            $o = [];
+            if ($rc != 0 || !filesize($dest)) {
+                echo "FAIL {$p["name"]}: cannot extract $member from $url\n";
+                exit(1);
+            }
+            printf("%s|%s|%s|%s\n", basename($dest), $p["name"], $got,
+                $p["upstream"] ?? "");
+            continue;
+        }
+        $dest = $stage . "/All/" . basename($path);
     }
     $cmd = sprintf("fetch -qo %s %s", escapeshellarg($dest), escapeshellarg($url));
     exec($cmd, $o, $rc);
@@ -204,7 +244,7 @@ php -r '
 $stage = $argv[1]; $abi = $argv[2];
 $major = explode(":", $abi)[1] ?? "";
 $bad = array();
-foreach (glob($stage . "/All/*.pkg") as $f) {
+foreach (array_merge(glob($stage . "/All/*.pkg"), glob($stage . "/All/*.txz")) as $f) {
     $n++;
     exec("pkg info -F " . escapeshellarg($f) . " 2>/dev/null", $o, $rc);
     $arch = "";
