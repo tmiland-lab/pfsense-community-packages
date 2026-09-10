@@ -27,6 +27,7 @@ DNSCrypt on firewalls after Netgate dropped them from the 2.8.x repo.
 | pfSense-pkg-abuseipdb | [tmiland](https://github.com/tmiland/pfsense-abuseipdb) | MIT |
 | pfSense-pkg-adguardhome | [tmiland](https://github.com/tmiland/pfsense-adguardhome) | MIT |
 | pfSense-pkg-airvpn-remotes | [tmiland](https://github.com/tmiland/pfsense-airvpn-remotes) | MIT |
+| pfSense-pkg-vpn-providers | [tmiland](https://github.com/tmiland/pfsense-vpn-providers) | MIT |
 | pfSense-theme-lightdark | [tmiland-lab](https://github.com/tmiland-lab/pfsense-theme-lightdark) | MIT |
 | pfSense-pkg-ovpn-totp | [tmiland-lab](https://github.com/tmiland-lab/pfsense-ovpn-totp) | MIT |
 | pfSense-pkg-RESTAPI | [pfrest](https://github.com/pfrest/pfSense-pkg-RESTAPI) (mirror) | Apache-2.0 |
