@@ -17,9 +17,11 @@ jobs:
       - name: Write signing key
         run: |
           if [ -n "${{ secrets.COMMUNITY_SIGNING_KEY }}" ]; then
-            printf '%s\n' "${{ secrets.COMMUNITY_SIGNING_KEY }}" > /tmp/community-signing.key
-            chmod 600 /tmp/community-signing.key
-            echo "SIGN_KEY=/tmp/community-signing.key" >> $GITHUB_ENV
+            # Must live INSIDE the workspace: vmactions bind-mounts it into
+            # the VM at the same path; /tmp is not shared.
+            printf '%s\n' "${{ secrets.COMMUNITY_SIGNING_KEY }}" > "$GITHUB_WORKSPACE/.community-signing.key"
+            chmod 600 "$GITHUB_WORKSPACE/.community-signing.key"
+            echo "SIGN_KEY=$GITHUB_WORKSPACE/.community-signing.key" >> $GITHUB_ENV
           else
             echo "SIGN_KEY=" >> $GITHUB_ENV
             echo "::warning::COMMUNITY_SIGNING_KEY secret not set - repo will be built unsigned"
@@ -32,13 +34,15 @@ jobs:
           usesh: true
           # The workspace is bind-mounted into the VM, so OUT_DIR must live
           # there for the host-side deploy step to see the build output.
-          envs: 'OUT_DIR'
+          # SIGN_KEY points at the workspace copy of the signing key.
+          envs: 'OUT_DIR SIGN_KEY'
           prepare: |
             pkg install -y pkg openssl php82 2>/dev/null || pkg install -y pkg openssl php83
           run: |
             OUT_DIR=$GITHUB_WORKSPACE/out sh pkg/build.sh
 
       - name: Deploy to gh-pages
+        if: success()
         run: |
           git config user.name "tmiland-lab[bot]"
           git config user.email "4862101+tmiland-lab[bot]@users.noreply.github.com"
@@ -55,3 +59,7 @@ jobs:
           git add -A index.html repo
           git commit -m "mirror: repo refresh $(date -u +%Y-%m-%dT%H:%MZ)" || echo "nothing to commit"
           git push origin HEAD:gh-pages
+
+      - name: Remove signing key
+        if: always()
+        run: rm -f "$GITHUB_WORKSPACE/.community-signing.key"
