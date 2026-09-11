@@ -1,7 +1,7 @@
 {
   "forum": {
-    "https://forum.netgate.com/topic/201335.rss": 1,
-    "https://forum.netgate.com/topic/201336.rss": 1,
+    "https://forum.netgate.com/topic/201335.rss": 2,
+    "https://forum.netgate.com/topic/201336.rss": 2,
     "https://forum.netgate.com/topic/201354.rss": 1
   },
   "issues": {
@@ -37,7 +37,7 @@
     "nopoz/pfsense-dnscrypt-proxy": "v1.2.10",
     "pfrest/pfSense-pkg-RESTAPI": "v2.10.2",
     "pfrest/pfSense-pkg-saml2-auth": "v2.1.0",
-    "tmiland-lab/pfsense-airvpn-remotes": "v0.2.3",
+    "tmiland-lab/pfsense-airvpn-remotes": "v0.2.4",
     "tmiland-lab/pfsense-configbackup": "v0.1.6",
     "tmiland-lab/pfsense-ovpn-totp": "v0.1.0",
     "tmiland-lab/pfsense-theme-lightdark": "v0.2.3",
