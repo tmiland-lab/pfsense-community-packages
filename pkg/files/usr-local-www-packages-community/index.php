@@ -33,8 +33,10 @@ if ($_POST) {
 		list($ok, $out) = cpm_action($action, $name);
 		$action_output = $out;
 		$savemsg = $ok ?
-			sprintf(gettext('Action %1$s on %2$s completed.'), $action, $name) :
-			sprintf(gettext('Action %1$s on %2$s FAILED - see output.'), $action, $name);
+			sprintf(gettext('Action %1$s on %2$s completed.'),
+				htmlspecialchars((string)$action), htmlspecialchars((string)$name)) :
+			sprintf(gettext('Action %1$s on %2$s FAILED - see output.'),
+				htmlspecialchars((string)$action), htmlspecialchars((string)$name));
 		if (!$ok) {
 			$input_errors[] = gettext('Package operation failed - see output below.');
 		}
