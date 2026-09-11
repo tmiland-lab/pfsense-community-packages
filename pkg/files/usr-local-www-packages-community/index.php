@@ -5,7 +5,9 @@
  * Community Packages - single page manager. Lists every package offered by
  * the unified community repository with its install status and contextual
  * action buttons (Install when absent, Upgrade/Delete when installed).
- * Operations run pkg-static synchronously and show its output inline.
+ * Packages are categorized by source with tabs: Community (our repo),
+ * Official (manageable official add-ons) and All. Operations run pkg-static
+ * synchronously and show their output inline.
  */
 require_once('guiconfig.inc');
 require_once('/usr/local/pfsense-community/share/community_lib.php');
@@ -39,20 +41,15 @@ if ($_POST) {
 	}
 }
 
-/* display_top_tabs() takes its argument by reference - pass a variable. */
-$tab_array = array(
-	array(gettext('Community Packages'), true, '/packages/community/index.php'),
-);
-display_top_tabs($tab_array);
-
-/* View preference: grouped by source repository (default) or flat
- * alphabetical. Toggled by link (GET) and carried through package
- * actions via a hidden form field (POST). */
-$group_flat = false;
-if (isset($_POST['group'])) {
-	$group_flat = ($_POST['group'] == 'flat');
-} elseif (isset($_GET['group'])) {
-	$group_flat = ($_GET['group'] == 'flat');
+/* Tab (source category): community (default), official, or all. Carried
+ * through links (GET) and package actions (hidden POST field) so the
+ * manager keeps showing the category an operation was started from. */
+$tab = 'community';
+$valid_tabs = array('community', 'official', 'all');
+if (isset($_POST['tab']) && in_array($_POST['tab'], $valid_tabs)) {
+	$tab = $_POST['tab'];
+} elseif (isset($_GET['tab']) && in_array($_GET['tab'], $valid_tabs)) {
+	$tab = $_GET['tab'];
 }
 
 if ($input_errors) {
@@ -65,13 +62,34 @@ if ($savemsg) {
 $available = cpm_available();
 $installed = cpm_installed();
 
+/* Per-source counts for the status line. */
+$community_count = 0;
+$official_count = 0;
+foreach ($available as $row) {
+	if ($row['repo'] == 'community') {
+		$community_count++;
+	} else {
+		$official_count++;
+	}
+}
+
+/* display_top_tabs() takes its argument by reference - pass a variable. */
+$tab_array = array(
+	array(gettext('Community'), $tab == 'community', '/packages/community/index.php?tab=community'),
+	array(gettext('Official'), $tab == 'official', '/packages/community/index.php?tab=official'),
+	array(gettext('All'), $tab == 'all', '/packages/community/index.php?tab=all'),
+);
+display_top_tabs($tab_array);
+
 $form = new Form(false);
 $section = new Form_Section('Repository');
 $section->addInput(new Form_StaticText(
 	gettext('Status'),
-	sprintf(gettext('%1$d packages offered, %2$d installed.') . ' ',
+	sprintf(gettext('%1$d packages offered, %2$d installed (%3$d community, %4$d official).'),
 		count($available),
-		count(array_intersect_key($installed, $available)))
+		count(array_intersect_key($installed, $available)),
+		$community_count,
+		$official_count)
 ));
 $section->addInput(new Form_Button(
 	'refresh',
@@ -80,20 +98,25 @@ $section->addInput(new Form_Button(
 	'fa-solid fa-arrows-rotate'
 ))->setHelp(gettext('Re-downloads the repository metadata (pkg update -f -r community).'));
 $form->addGlobal(new Form_Input(
-	'group',
+	'tab',
 	null,
 	'hidden',
-	$group_flat ? 'flat' : 'grouped'
+	$tab
 ));
 $form->add($section);
 print $form;
 ?>
 <?php
-/* Display order: grouped by source repository (community first, then
- * official) or flat - in both cases case-insensitive by package name. */
-if ($group_flat) {
-	$display = $available;
-	uksort($display, 'strcasecmp');
+/* The tab's subset, case-insensitive by package name. The All tab keeps
+ * the two-bucket order (community first, then official) so the Source
+ * column never scatters. */
+if ($tab != 'all') {
+	$display = array();
+	foreach ($available as $key => $row) {
+		if (($row['repo'] == 'community') == ($tab == 'community')) {
+			$display[$key] = $row;
+		}
+	}
 } else {
 	$community_rows = array();
 	$official_rows = array();
@@ -108,14 +131,14 @@ if ($group_flat) {
 	uksort($official_rows, 'strcasecmp');
 	$display = $community_rows + $official_rows;
 }
+if ($tab != 'all') {
+	uksort($display, 'strcasecmp');
+}
 ?>
 <div class="panel panel-default">
 	<div class="panel-heading">
-		<h2 class="panel-title"><?= gettext('Packages') ?></h2>
-		<span class="pull-right community-viewtoggle"><?= gettext('View') ?>:
-			<a href="/packages/community/index.php?group=grouped" class="<?= $group_flat ? '' : 'community-viewactive' ?>"><?= gettext('Grouped') ?></a> |
-			<a href="/packages/community/index.php?group=flat" class="<?= $group_flat ? 'community-viewactive' : '' ?>"><?= gettext('Flat') ?></a>
-		</span>
+		<h2 class="panel-title"><?= $tab == 'community' ? gettext('Community repository (ours + mirrors)') :
+			($tab == 'official' ? gettext('Official repository (manageable add-ons)') : gettext('All packages')) ?></h2>
 	</div>
 	<div class="table-responsive">
 		<table class="table table-striped table-hover table-condensed">
@@ -131,14 +154,10 @@ if ($group_flat) {
 			</tr>
 		</thead>
 		<tbody>
-<?php $lastsrc = ''; foreach ($display as $row):
+<?php foreach ($display as $row):
 	$inst = $installed[$row['name']] ?? null;
 	$status = cpm_status($inst, $row['version']);
-	$link = cpm_repo_link($row);
-	if (!$group_flat && $row['repo'] !== $lastsrc):
-		$lastsrc = $row['repo']; ?>
-				<tr><td colspan="7" style="font-weight:600;"><?= $row['repo'] == 'community' ? gettext('Community repository (ours + mirrors)') : gettext('Official repository (manageable add-ons)') ?></td></tr>
-<?php endif; ?>
+	$link = cpm_repo_link($row); ?>
 				<tr>
 					<td><code><?= $link ? '<a href="' . htmlspecialchars($link, ENT_QUOTES) . '" target="_blank" rel="noopener noreferrer">' . htmlspecialchars($row['name']) . '</a>' : htmlspecialchars($row['name']) ?></code></td>
 					<td><?= htmlspecialchars($row['comment']) ?></td>
@@ -161,7 +180,7 @@ if ($group_flat) {
 						<form method="post" class="community-inlineform">
 							<input type="hidden" name="cpmaction" value="install" />
 							<input type="hidden" name="pkgname" value="<?= htmlspecialchars($row['name']) ?>" />
-							<input type="hidden" name="group" value="<?= $group_flat ? 'flat' : 'grouped' ?>" />
+							<input type="hidden" name="tab" value="<?= $tab ?>" />
 							<button type="submit" class="btn btn-xs btn-primary"><?= gettext('Install') ?></button>
 						</form>
 <?php else: ?>
@@ -169,14 +188,14 @@ if ($group_flat) {
 						<form method="post" class="community-inlineform">
 							<input type="hidden" name="cpmaction" value="upgrade" />
 							<input type="hidden" name="pkgname" value="<?= htmlspecialchars($row['name']) ?>" />
-							<input type="hidden" name="group" value="<?= $group_flat ? 'flat' : 'grouped' ?>" />
+							<input type="hidden" name="tab" value="<?= $tab ?>" />
 							<button type="submit" class="btn btn-xs btn-warning"><?= gettext('Upgrade') ?></button>
 						</form>
 <?php endif; ?>
 						<form method="post" class="community-inlineform">
 							<input type="hidden" name="cpmaction" value="delete" />
 							<input type="hidden" name="pkgname" value="<?= htmlspecialchars($row['name']) ?>" />
-							<input type="hidden" name="group" value="<?= $group_flat ? 'flat' : 'grouped' ?>" />
+							<input type="hidden" name="tab" value="<?= $tab ?>" />
 							<button type="submit" class="btn btn-xs btn-danger community-delete"
 								onclick="return confirm('<?= gettext('Remove this package from the firewall?') ?>')">
 								<?= gettext('Delete') ?></button>
@@ -187,6 +206,10 @@ if ($group_flat) {
 <?php endforeach; ?>
 <?php if (empty($available)): ?>
 				<tr><td colspan="7"><?= gettext('Repository metadata unavailable - press Refresh repository metadata.') ?></td></tr>
+<?php elseif (empty($display)): ?>
+				<tr><td colspan="7"><?= $tab == 'official' ?
+					gettext('No manageable official add-ons found in the repository metadata.') :
+					gettext('No packages in this category.') ?></td></tr>
 <?php endif; ?>
 				</tbody>
 			</table>
@@ -224,9 +247,6 @@ if ($group_flat) {
 	border-color: #f0ad4e;
 	background: rgba(240, 173, 78, 0.30);
 }
-.community-viewtoggle { font-size: 11px; font-weight: 400; }
-.community-viewtoggle a { font-size: 11px; }
-.community-viewactive { font-weight: 700; text-decoration: underline; }
 </style>
 
 <?php include('foot.inc'); ?>
