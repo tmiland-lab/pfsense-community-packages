@@ -141,20 +141,23 @@ case "$FETCHLOG" in *FAIL*) echo "mirror fetch failed - aborting" >&2; exit 1;; 
 # ------------------------------------------------------------------
 # 2. Build the manager package
 # ------------------------------------------------------------------
+# The manager gets its own staging root: $STAGE/All holds the fetched
+# repository packages, and the manifest walk below must not see them.
+MSTAGE="$WORK/mstage"
 MPBASE="usr/local/pfsense-community"
 MWBASE="usr/local/www/packages/community"
-mkdir -p "$STAGE/$MPBASE/bin" "$STAGE/$MPBASE/share" "$STAGE/$MPBASE/sbin" \
-	"$STAGE/$MWBASE"
+mkdir -p "$MSTAGE/$MPBASE/bin" "$MSTAGE/$MPBASE/share" "$MSTAGE/$MPBASE/sbin" \
+	"$MSTAGE/$MWBASE"
 install -m 0755 "$PKGDIR/files/usr-local-pfsense-community/bin/community.php" \
-	"$STAGE/$MPBASE/bin/community.php"
+	"$MSTAGE/$MPBASE/bin/community.php"
 install -m 0644 "$PKGDIR/files/usr-local-pfsense-community/share/community_lib.php" \
-	"$STAGE/$MPBASE/share/community_lib.php"
+	"$MSTAGE/$MPBASE/share/community_lib.php"
 install -m 0644 "$PKGDIR/files/usr-local-pfsense-community/share/community.xml" \
-	"$STAGE/$MPBASE/share/community.xml"
+	"$MSTAGE/$MPBASE/share/community.xml"
 install -m 0755 "$PKGDIR/files/usr-local-pfsense-community/sbin/setup.sh" \
-	"$STAGE/$MPBASE/sbin/setup.sh"
+	"$MSTAGE/$MPBASE/sbin/setup.sh"
 for page in "$PKGDIR"/files/usr-local-www-packages-community/*.php; do
-	install -m 0644 "$page" "$STAGE/$MWBASE/$(basename "$page")"
+	install -m 0644 "$page" "$MSTAGE/$MWBASE/$(basename "$page")"
 done
 
 # Ship the curated package -> upstream-project URL map (rendered links
@@ -169,13 +172,13 @@ foreach (($manifest["packages"] ?? array()) as $p) {
 }
 $links["pfsense-pkg-community"] = "https://github.com/tmiland-lab/pfsense-community-packages";
 file_put_contents($argv[2], json_encode($links, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
-' "$REPO/packages/mirrors.json" "$STAGE/$MPBASE/share/community_repos.json"
+' "$REPO/packages/mirrors.json" "$MSTAGE/$MPBASE/share/community_repos.json"
 
-php -l "$STAGE/$MPBASE/share/community_lib.php" >/dev/null
-php -l "$STAGE/$MPBASE/bin/community.php" >/dev/null
-php -l "$STAGE/$MWBASE/index.php" >/dev/null
+php -l "$MSTAGE/$MPBASE/share/community_lib.php" >/dev/null
+php -l "$MSTAGE/$MPBASE/bin/community.php" >/dev/null
+php -l "$MSTAGE/$MWBASE/index.php" >/dev/null
 
-VERSION=$(sed -n 's/.*<version>\([^<]*\)<.*/\1/p' "$STAGE/$MPBASE/share/community.xml" | head -1)
+VERSION=$(sed -n 's/.*<version>\([^<]*\)<.*/\1/p' "$MSTAGE/$MPBASE/share/community.xml" | head -1)
 ABI=$(pkg config abi)
 NAME="pfSense-pkg-community"
 ORIGIN="security/pfSense-pkg-community"
@@ -236,9 +239,9 @@ $manifest = array(
     )
 );
 echo json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-' "$STAGE" "$META" "$ABI" "$VERSION" "$NAME" "$ORIGIN")
+' "$MSTAGE" "$META" "$ABI" "$VERSION" "$NAME" "$ORIGIN")
 echo "$MANIFEST" > "$META/+MANIFEST"
-pkg create -m "$META" -r "$STAGE" -o "$WORK/mpkg" >/dev/null
+pkg create -m "$META" -r "$MSTAGE" -o "$WORK/mpkg" >/dev/null
 find "$WORK/mpkg" -name '*.pkg' -exec mv {} "$STAGE/All/" \;
 # (setup.sh ships the pubkey + repo conf; no second build pass needed.)
 
