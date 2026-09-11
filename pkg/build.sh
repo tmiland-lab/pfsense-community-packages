@@ -218,7 +218,7 @@ $manifest = array(
     "origin" => $origin,
     "version" => $version,
     "comment" => "Community Packages - unified manager for community/mirrored pfSense packages",
-    "desc" => "Single-page package manager for the unified community repository: install, upgrade and remove packages dropped from or absent in the official pfSense repo. Packages installed from this repo stay resolvable during boot package resync.",
+    "desc" => "Single-page package manager for the unified community repository: install, upgrade and remove packages dropped from or absent in the official pfSense repo.",
     "maintainer" => "kontakt@tmiland.com",
     "www" => "https://github.com/tmiland-lab/pfsense-community-packages",
     "abi" => $abi,
@@ -362,7 +362,7 @@ packages. Install/upgrade/remove them with the <a href="https://github.com/tmila
 <p>Repo URL for <code>/usr/local/etc/pkg/repos/community.conf</code>:<br>
 <code>https://tmiland-lab.github.io/pfsense-community-packages/repo</code></p>
 <p>Metadata is signed; the trust anchor is installed by the manager package
-(<code>signature_type: fingerprints</code>).</p>
+(<code>signature_type: PUBKEY</code>).</p>
 <table>
 <tr><th>Package</th><th>Version</th><th>Description</th><th>License</th><th>Size (flatsize)</th></tr>
 <?php foreach ($rows as $r): ?>

@@ -3,11 +3,9 @@
 # configuration + signature trust anchor, registers the menu entry.
 #
 # NOTE on deinstall: the repo configuration is intentionally KEPT so that
-# packages installed from this repository remain resolvable during the
-# pfSense boot package resync (unresolvable packages are removed). Remove
-# /usr/local/etc/pkg/repos/community.conf manually if you really want it
-# gone - but installed community packages will then be dropped at the next
-# boot resync.
+# packages installed from this repository can still be upgraded with pkg.
+# Remove /usr/local/etc/pkg/repos/community.conf manually if you really
+# want it gone.
 
 CM_BASE="/usr/local/pfsense-community"
 REPO_CONF="/usr/local/etc/pkg/repos/community.conf"

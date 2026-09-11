@@ -10,12 +10,6 @@ mirrored pfSense packages — everything Netgate dropped from (or never put in)
 the official repository, plus first-party packages, with **signed repo
 metadata** and full upstream provenance.
 
-Packages installed through this repository stay **resolvable during the
-pfSense boot package resync** (`needs_package_sync`) — the stock behaviour of
-removing unresolvable packages ("Package X does not exist in current pfSense
-version and it has been removed") is what silently deleted RESTAPI and
-DNSCrypt on firewalls after Netgate dropped them from the 2.8.x repo.
-
 ![Community Packages manager](docs/screenshots/community-packages.png)
 
 ## What's in the repo
@@ -52,7 +46,7 @@ community: {
 }
 EOF
 fetch -o /usr/local/etc/pkg/community.pub \
-  https://tmiland-lab.github.io/pfsense-community-packages/community.pub
+  https://tmiland-lab.github.io/pfsense-community-packages/repo/community.pub
 pkg update -r community
 pkg install -y -r community pfSense-pkg-community
 ```
@@ -112,14 +106,6 @@ same page. CLI equivalent:
   [.github/workflows/mirror.yml](.github/workflows/mirror.yml) (FreeBSD VM
   runner) or manually: `sh pkg/build.sh` on a pfSense host.
 
-## Resync survival
-
-pfSense's boot package resync reinstalls every package listed in
-`installedpackages` and **removes** those it cannot resolve from any enabled
-repository. Because this repository is enabled on the firewall and keeps
-mirrors of the dropped packages resolvable, community packages survive
-resyncs instead of being uninstalled.
-
 ## Adding a package
 
 Add an entry to `packages/mirrors.json` — either `own` (a pkg repository to
@@ -133,9 +119,9 @@ pkg remove -y pfSense-pkg-community
 ```
 
 The menu entry is removed, but the **repo configuration is intentionally
-kept** so already-installed community packages stay resolvable at boot.
-Remove `/usr/local/etc/pkg/repos/community.conf` manually only if you accept
-that installed community packages will be dropped at the next boot resync.
+kept** so already-installed community packages can still be upgraded with
+`pkg`. Remove `/usr/local/etc/pkg/repos/community.conf` manually if you want
+it gone.
 
 ## Support
 
