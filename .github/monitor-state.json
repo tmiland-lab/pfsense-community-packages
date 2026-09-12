@@ -18,8 +18,8 @@
       "state": "open"
     },
     "https://github.com/nopoz/pfsense-dnscrypt-proxy/issues/44": {
-      "comments": 0,
-      "state": "open"
+      "comments": 1,
+      "state": "closed"
     },
     "https://github.com/pfrest/pfSense-pkg-RESTAPI/issues/945": {
       "comments": 0,
@@ -37,11 +37,11 @@
     "nopoz/pfsense-dnscrypt-proxy": "v1.2.10",
     "pfrest/pfSense-pkg-RESTAPI": "v2.10.2",
     "pfrest/pfSense-pkg-saml2-auth": "v2.1.0",
-    "tmiland-lab/pfsense-airvpn-remotes": "v0.2.4",
+    "tmiland-lab/pfsense-airvpn-remotes": "v0.2.7",
     "tmiland-lab/pfsense-configbackup": "v0.1.6",
     "tmiland-lab/pfsense-ovpn-totp": "v0.1.0",
     "tmiland-lab/pfsense-theme-lightdark": "v0.2.3",
-    "tmiland-lab/pfsense-vpn-providers": "v0.1.10",
+    "tmiland-lab/pfsense-vpn-providers": "v0.1.11",
     "tmiland/pfsense-abuseipdb": "v0.8.9",
     "tmiland/pfsense-adguardhome": "v1.1.2"
   }
