@@ -47,6 +47,8 @@ community: {
 EOF
 fetch -o /usr/local/etc/pkg/community.pub \
   https://tmiland-lab.github.io/pfsense-community-packages/repo/community.pub
+# Check the key against the fingerprint under "Security / audit model" below
+sha256 -q /usr/local/etc/pkg/community.pub
 pkg update -r community
 pkg install -y -r community pfSense-pkg-community
 ```
@@ -106,6 +108,31 @@ same page. CLI equivalent:
   Packages built on a *newer* FreeBSD userland than the target (poudriere's
   `FreeBSD_version` annotation) also fail the build — pkg would otherwise
   reject the whole repository on the firewall.
+- **Build provenance**: the manager package is covered by a
+  [GitHub artifact attestation](https://docs.github.com/actions/security-guides/using-artifact-attestations-to-establish-provenance-for-builds),
+  a Sigstore-signed statement tying those exact bytes to the commit and
+  workflow run that produced them. It is independent of the repository
+  signing key, so it stays checkable even if that key is lost:
+
+  ```sh
+  gh attestation verify pfSense-pkg-community-0.1.4.pkg \
+    --repo tmiland-lab/pfsense-community-packages
+  ```
+
+  Each manager version is also published as a release asset with its
+  sha256. Later refreshes re-publish those same bytes instead of a new
+  build, so a version's checksum holds until the version changes, and the
+  build fails if the contents drift without a version bump.
+- **Trust anchor fingerprint**: the public key that the install steps fetch
+  over HTTPS, and that the manager installs, is
+
+  ```
+  af462e9b6d23ce80dd83541ddba5a7f51eeb99b1097ec5d2a62f69bd0d785256
+  ```
+
+  Recorded here, in git history, as a check on the fetch that does not
+  depend on the fetch: `sha256 -q /usr/local/etc/pkg/community.pub` on the
+  firewall, `sha256sum community.pub` elsewhere.
 - **First-party packages** resolve to the newest build from their own
   repository at build time.
 - Mirrors are refreshed daily by
