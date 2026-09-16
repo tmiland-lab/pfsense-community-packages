@@ -7,12 +7,39 @@ on:
 
 permissions:
   contents: write
+  id-token: write      # Sigstore OIDC for the build attestation
+  attestations: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Resolve the manager version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION=$(sed -n 's/.*<version>\([^<]*\)<.*/\1/p' \
+            pkg/files/usr-local-pfsense-community/share/community.xml | head -1)
+          [ -n "$VERSION" ] || { echo "::error::cannot read the manager version from community.xml"; exit 1; }
+          echo "MANAGER_VERSION=$VERSION" >> $GITHUB_ENV
+          PKG="pfSense-pkg-community-$VERSION.pkg"
+          if gh release view "v$VERSION" >/dev/null 2>&1; then
+            # This version is already released and attested. Hand those exact
+            # bytes to the build instead of publishing a fresh package, so the
+            # manager's checksum only moves when its version does.
+            # Must live INSIDE the workspace to be visible in the FreeBSD VM.
+            mkdir -p "$GITHUB_WORKSPACE/.manager-release"
+            gh release download "v$VERSION" -p "$PKG" -D "$GITHUB_WORKSPACE/.manager-release"
+            echo "MANAGER_PKG=$GITHUB_WORKSPACE/.manager-release/$PKG" >> $GITHUB_ENV
+            # build.sh still builds the package and fails the run if its
+            # contents no longer match the release, so a source change without
+            # a version bump cannot pass silently.
+          else
+            echo "MANAGER_PKG=" >> $GITHUB_ENV
+            echo "RELEASE_MANAGER=1" >> $GITHUB_ENV
+          fi
 
       - name: Write signing key
         run: |
@@ -35,11 +62,37 @@ jobs:
           # The workspace is bind-mounted into the VM, so OUT_DIR must live
           # there for the host-side deploy step to see the build output.
           # SIGN_KEY points at the workspace copy of the signing key.
-          envs: 'OUT_DIR SIGN_KEY'
+          envs: 'OUT_DIR SIGN_KEY MANAGER_PKG'
           prepare: |
             pkg install -y pkg openssl php82 2>/dev/null || pkg install -y pkg openssl php83
           run: |
             OUT_DIR=$GITHUB_WORKSPACE/out sh pkg/build.sh
+
+      - name: Attest the manager package
+        if: success() && env.RELEASE_MANAGER == '1'
+        uses: actions/attest-build-provenance@v4
+        with:
+          subject-path: out/repo/All/pfSense-pkg-community-${{ env.MANAGER_VERSION }}.pkg
+
+      - name: Publish the manager release
+        if: success() && env.RELEASE_MANAGER == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PKG="pfSense-pkg-community-$MANAGER_VERSION.pkg"
+          cd "$GITHUB_WORKSPACE/out/repo/All" || exit 1
+          sha256sum "$PKG" > "$PKG.sha256"
+          gh release create "v$MANAGER_VERSION" "$PKG" "$PKG.sha256" \
+            --title "Community Packages manager $MANAGER_VERSION" \
+            --notes "Manager package as published to the repository. Later refreshes
+          re-publish these exact bytes, so the checksum below stays valid for as long
+          as $MANAGER_VERSION is the current version.
+
+          Verify the build provenance:
+
+          \`\`\`sh
+          gh attestation verify $PKG --repo $GITHUB_REPOSITORY
+          \`\`\`"
 
       - name: Deploy to gh-pages
         if: success()
