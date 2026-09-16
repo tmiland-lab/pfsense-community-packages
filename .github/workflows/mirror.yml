@@ -26,16 +26,12 @@ jobs:
           echo "MANAGER_VERSION=$VERSION" >> $GITHUB_ENV
           PKG="pfSense-pkg-community-$VERSION.pkg"
           if gh release view "v$VERSION" >/dev/null 2>&1; then
-            # This version is already released and attested. Hand those exact
-            # bytes to the build instead of publishing a fresh package, so the
-            # manager's checksum only moves when its version does.
+            # Republish the released bytes so the checksum moves only with the
+            # version. build.sh rebuilds anyway and fails on any drift.
             # Must live INSIDE the workspace to be visible in the FreeBSD VM.
             mkdir -p "$GITHUB_WORKSPACE/.manager-release"
             gh release download "v$VERSION" -p "$PKG" -D "$GITHUB_WORKSPACE/.manager-release"
             echo "MANAGER_PKG=$GITHUB_WORKSPACE/.manager-release/$PKG" >> $GITHUB_ENV
-            # build.sh still builds the package and fails the run if its
-            # contents no longer match the release, so a source change without
-            # a version bump cannot pass silently.
           else
             echo "MANAGER_PKG=" >> $GITHUB_ENV
             echo "RELEASE_MANAGER=1" >> $GITHUB_ENV

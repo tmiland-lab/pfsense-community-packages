@@ -248,19 +248,15 @@ mv "$MPKG" "$STAGE/All/"
 MPKG="$STAGE/All/$(basename "$MPKG")"
 # (setup.sh ships the pubkey + repo conf; no second build pass needed.)
 
-# MANAGER_PKG: an already published build of this same version, passed in by
-# CI. Publishing those exact bytes again instead of the fresh ones keeps the
-# manager's checksum - and the build attestation over it - stable across the
-# weekly refresh, so the artifact changes only when the version does. The
-# build above still runs, so the PHP lint covers every cycle either way.
+# MANAGER_PKG: a published build of this same version, from CI. Republishing
+# those bytes keeps the manager's checksum, and the attestation over it,
+# stable across the weekly refresh.
 if [ -n "${MANAGER_PKG:-}" ]; then
 	[ -f "$MANAGER_PKG" ] || { echo "FAIL: MANAGER_PKG=$MANAGER_PKG not found" >&2; exit 1; }
 	GOT=$(pkg query -F "$MANAGER_PKG" '%n-%v')
 	[ "$GOT" = "$NAME-$VERSION" ] || { echo "FAIL: MANAGER_PKG is $GOT, expected $NAME-$VERSION" >&2; exit 1; }
-	# One version, one set of contents: reusing the release would otherwise
-	# drop a source change without a word. Compared as payload paths + hashes
-	# rather than raw bytes, because two builds of identical sources differ in
-	# tar metadata alone.
+	# Compared as payload paths + hashes, not raw bytes: two builds of
+	# identical sources differ in tar metadata alone.
 	pkg query -F "$MPKG" '%Fp %Fs' | sort > "$WORK/manager-fresh.files"
 	pkg query -F "$MANAGER_PKG" '%Fp %Fs' | sort > "$WORK/manager-released.files"
 	if ! diff -u "$WORK/manager-released.files" "$WORK/manager-fresh.files"; then
