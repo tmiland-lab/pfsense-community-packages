@@ -69,6 +69,12 @@ One page, every package, inline status:
 - Package names link to their upstream project repositories (curated
   URLs from `packages/mirrors.json` for community packages; the package's
   declared home page for official ones)
+- Packages installed from the community repository are marked `automatic`
+  and `vital`, so pfSense's bulk operations (Factory Defaults, *Reinstall
+  all packages*) skip them instead of aborting partway through, and
+  `pkg autoremove` leaves them alone. Removing one by hand therefore needs
+  `pkg delete -f`; the *Delete* button handles it. Packages from the
+  official repository are left exactly as pfSense manages them.
 - Versions are shown as monospace chips — installed and available side by
   side, with the available version highlighted when an update exists
 - **View: Grouped / Flat** — group the list by source repository

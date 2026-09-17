@@ -146,6 +146,27 @@ function cpm_repo_update($quiet = false) {
 	return $rc;
 }
 
+/* pkg enforces vital at execute time, not while solving: `pkg delete -n`
+ * prints an ordinary removal plan and exits 0 either way. */
+function cpm_is_vital($name) {
+	$out = array();
+	$rc = 1;
+	exec(CPM_PKG . ' query \'%V\' ' . escapeshellarg($name) . ' 2>/dev/null', $out, $rc);
+	return $rc === 0 && trim((string) reset($out)) === '1';
+}
+
+/* Factory Defaults (pkg_delete_all) and "Reinstall all packages"
+ * (pkg_reinstall_all) both iterate `pkg query -e '%a == 0'` and abort the
+ * whole run on the first failure. Automatic keeps this package out of both
+ * loops; vital then stops `pkg autoremove` collecting what automatic
+ * exposed. Neither flag is safe alone. */
+function cpm_set_flags($name) {
+	$out = array();
+	$rc = 1;
+	exec(CPM_PKG . ' set -y -A 1 -v 1 ' . escapeshellarg($name) . ' 2>&1', $out, $rc);
+	return array($rc === 0, $out);
+}
+
 /* Run a repo operation. Only whitelisted actions, only manageable package
  * names that exist in a known repository. Returns array(ok, output-lines). */
 function cpm_action($action, $name) {
@@ -164,14 +185,39 @@ function cpm_action($action, $name) {
 			$cmd = CPM_PKG . ' install -y -r ' . escapeshellarg($repo) . ' ' . escapeshellarg($name);
 			break;
 		case 'delete':
-			$cmd = CPM_PKG . ' delete -y ' . escapeshellarg($name);
+			/* Only our own vital packages: a blanket -f would skip the
+			 * dependency checks as well. */
+			$force = ($repo === CPM_REPO && cpm_is_vital($name)) ? '-f ' : '';
+			$cmd = CPM_PKG . ' delete -y ' . $force . escapeshellarg($name);
 			break;
 		default:
 			return array(false, array('Unknown action.'));
 	}
+
+	/* Sends a concurrent get_pkg_info() down its local-only -U path instead
+	 * of racing this transaction for pkg's database lock. */
+	if (!function_exists('is_subsystem_dirty')) {
+		require_once('util.inc');
+	}
+	$locked = !is_subsystem_dirty('pkg');
+	if ($locked) {
+		mark_subsystem_dirty('pkg');
+	}
 	$out = array();
 	$rc = 1;
 	exec($cmd . ' 2>&1', $out, $rc);
+	/* Flagging an official package vital would break pfSense's own Remove
+	 * button, which deletes without -f. */
+	if ($rc == 0 && $action !== 'delete' && $repo === CPM_REPO) {
+		list($flagged, $flagout) = cpm_set_flags($name);
+		if (!$flagged) {
+			$out[] = "WARNING: {$name} is installed, but setting its automatic/vital flags failed.";
+			$out = array_merge($out, $flagout);
+		}
+	}
+	if ($locked) {
+		clear_subsystem_dirty('pkg');
+	}
 	return array($rc == 0, $out);
 }
 
