@@ -86,9 +86,9 @@
     {
       "name": "pfSense-pkg-wg-export",
       "source": "mirror",
-      "version": "1.1.0",
-      "url": "https://github.com/3um3le3ee/pfSense-wireguard-peer-export/releases/download/v1.1.0/pfSense-pkg-wg-export-1.1.0.pkg",
-      "sha256": "bd46b77902480c61b85aaceef604797c4b9388b8c8b096913396d56ebb5784f5",
+      "version": "1.2.0",
+      "url": "https://github.com/3um3le3ee/pfSense-wireguard-peer-export/releases/download/v1.2.0/pfSense-pkg-wg-export-1.2.0.pkg",
+      "sha256": "babb3f66c7ef40d4ab62a6b775546f17d0b0c738876d6d751ca9f1256e4b375d",
       "upstream": "https://github.com/3um3le3ee/pfSense-wireguard-peer-export",
       "upstream_publishes_checksums": false,
       "license": "GPL-3.0",

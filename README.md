@@ -102,7 +102,7 @@ same page. CLI equivalent:
   reject the whole repository on the firewall.
 - **First-party packages** resolve to the newest build from their own
   repository at build time.
-- Mirrors are refreshed weekly by
+- Mirrors are refreshed daily by
   [.github/workflows/mirror.yml](.github/workflows/mirror.yml) (FreeBSD VM
   runner) or manually: `sh pkg/build.sh` on a pfSense host.
 
