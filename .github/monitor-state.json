@@ -31,7 +31,7 @@
     }
   },
   "releases": {
-    "3um3le3ee/pfSense-wireguard-peer-export": "v1.1.0",
+    "3um3le3ee/pfSense-wireguard-peer-export": "v1.2.0",
     "MarceloMayo74/pfsense-wgeasy": "v0.4.3",
     "mmahrous/pfSense-pkg-Mullvad": "v0.1.0",
     "nopoz/pfsense-dnscrypt-proxy": "v1.2.10",
