@@ -121,7 +121,7 @@ same page. CLI equivalent:
   signing key, so it stays checkable even if that key is lost:
 
   ```sh
-  gh attestation verify pfSense-pkg-community-0.1.4.pkg \
+  gh attestation verify pfSense-pkg-community-0.1.6.pkg \
     --repo tmiland-lab/pfsense-community-packages
   ```
 
