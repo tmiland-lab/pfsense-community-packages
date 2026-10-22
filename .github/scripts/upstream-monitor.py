@@ -41,7 +41,7 @@ def load_state():
     if os.path.exists(STATE_FILE):
         with open(STATE_FILE) as f:
             return json.load(f)
-    return {"issues": {}, "forum": {}, "releases": {}}
+    return {"issues": {}, "forum": {}, "releases": {}, "commits": {}}
 
 
 def save_state(state):
@@ -111,6 +111,8 @@ def report_forum(state, out):
 def report_releases(state, out):
     repos = set()
     for p in mirrors.get("packages", []):
+        if p.get("source") == "port":
+            continue  # no upstream releases; watched by report_port_commits
         m = re.match(r"https://github\.com/([^/]+/[^/]+)", p.get("upstream", ""))
         if m:
             repos.add(m.group(1))
@@ -129,6 +131,30 @@ def report_releases(state, out):
             print("warn: releases %s: %s" % (repo, exc), file=sys.stderr)
 
 
+def report_port_commits(state, out):
+    """Source-built packages pin an upstream commit; report when the upstream
+    default branch has moved past the pin (the pin is bumped by hand)."""
+    commits = state.setdefault("commits", {})
+    for p in mirrors.get("packages", []):
+        if p.get("source") != "port" or not p.get("commit"):
+            continue
+        m = re.match(r"https://github\.com/([^/]+/[^/]+)", p.get("upstream", ""))
+        if not m:
+            continue
+        repo = m.group(1)
+        try:
+            head = json.loads(fetch("https://api.github.com/repos/%s/commits?per_page=1"
+                                    % repo, GH_TOKEN, api=True))[0]["sha"]
+            last = commits.get(repo)
+            if last is not None and head != last and head != p["commit"]:
+                out.append("**[%s]** upstream moved to **%s** (pinned %s) — bump the"
+                           " pin in packages/mirrors.json"
+                           % (repo, head[:12], p["commit"][:12]))
+            commits[repo] = head
+        except Exception as exc:
+            print("warn: commits %s: %s" % (repo, exc), file=sys.stderr)
+
+
 with open(WATCH_FILE) as f:
     watch = json.load(f)
 with open(MIRRORS_FILE) as f:
@@ -139,6 +165,7 @@ out = []
 report_issues(state, out)
 report_forum(state, out)
 report_releases(state, out)
+report_port_commits(state, out)
 
 if out:
     print("=== Upstream activity report")
