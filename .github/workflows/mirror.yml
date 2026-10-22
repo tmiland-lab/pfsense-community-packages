@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: '0 7 * * *'  # daily 07:00 UTC
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Build only: skip the gh-pages deploy, manager release and attestation'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -64,14 +69,25 @@ jobs:
           run: |
             OUT_DIR=$GITHUB_WORKSPACE/out sh pkg/build.sh
 
+      - name: Upload dry-run build output
+        if: success() && github.event.inputs.dry_run == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: dry-run-build
+          path: |
+            out/index.html
+            out/repo/CHECKSUMS.txt
+            out/repo/packagesite.pkg
+            out/repo/All/pfSense-pkg-speedtest-*.pkg
+
       - name: Attest the manager package
-        if: success() && env.RELEASE_MANAGER == '1'
+        if: success() && env.RELEASE_MANAGER == '1' && github.event.inputs.dry_run != 'true'
         uses: actions/attest-build-provenance@v4
         with:
           subject-path: out/repo/All/pfSense-pkg-community-${{ env.MANAGER_VERSION }}.pkg
 
       - name: Publish the manager release
-        if: success() && env.RELEASE_MANAGER == '1'
+        if: success() && env.RELEASE_MANAGER == '1' && github.event.inputs.dry_run != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -91,7 +107,7 @@ jobs:
           \`\`\`"
 
       - name: Deploy to gh-pages
-        if: success()
+        if: success() && github.event.inputs.dry_run != 'true'
         run: |
           git config user.name "tmiland-lab[bot]"
           git config user.email "4862101+tmiland-lab[bot]@users.noreply.github.com"
