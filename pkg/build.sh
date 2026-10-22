@@ -3,7 +3,8 @@
 # Runs ON a pfSense host (or matching FreeBSD box): sh pkg/build.sh
 #
 # - Fetches all packages from packages/mirrors.json ("own" = newest from the
-#   given pkg repo, "mirror" = pinned upstream release asset, sha256 verified)
+#   given pkg repo, "mirror" = pinned upstream release asset, sha256 verified,
+#   "port" = package built here from a pinned source-only upstream port)
 # - Builds the manager package (pfSense-pkg-community)
 # - Creates SIGNED repo metadata (pkg repo -s) + CHECKSUMS.txt + index.html
 # Output: /tmp/pfsense-community-packages-out/{index.html,repo/}
@@ -57,7 +58,42 @@ function cpm_own_version($repo_url, $name, $scratch) {
 $manifest = json_decode(file_get_contents($argv[1]), true);
 $stage = $argv[2];
 $scratch = $argv[3];
+$pkgdir = $argv[4];
 foreach ($manifest["packages"] as $p) {
+    if (($p["source"] ?? "") === "port") {
+        /* Source-only upstream (FreeBSD-ports style tree, no release
+         * assets, no pkg repo): staged and built on the spot by
+         * build-port.sh from the pinned tarball, which that script
+         * sha256-verifies before building. It reports progress on stderr
+         * (inherited into the build log) and the result on stdout. */
+        if (empty($p["commit"]) || strpos($p["url"] ?? "", $p["commit"]) === false) {
+            echo "FAIL port {$p["name"]}: 'url' must point at the pinned 'commit'\n";
+            exit(1);
+        }
+        exec(sprintf("sh %s %s %s %s %s %s %s",
+            escapeshellarg($pkgdir . "/build-port.sh"),
+            escapeshellarg($p["url"] ?? ""),
+            escapeshellarg($p["sha256"] ?? ""),
+            escapeshellarg($p["port_path"] ?? ""),
+            escapeshellarg($stage . "/All"),
+            escapeshellarg($scratch),
+            escapeshellarg($p["upstream"] ?? "")), $o, $rc);
+        $out = trim(implode("\n", $o));
+        $o = [];
+        if ($rc != 0 || strpos($out, "PKG=") !== 0) {
+            echo ($out !== "" ? $out . "\n" : "") . "FAIL port {$p["name"]}\n";
+            exit(1);
+        }
+        $file = basename(substr($out, strlen("PKG=")));
+        $dest = $stage . "/All/" . $file;
+        if (!is_file($dest)) {
+            echo "FAIL port {$p["name"]}: $file was not staged\n";
+            exit(1);
+        }
+        printf("%s|%s|%s|%s\n", $file, $p["name"], hash_file("sha256", $dest),
+            $p["upstream"] ?? "");
+        continue;
+    }
     if (($p["source"] ?? "") === "own") {
         $ver = cpm_own_version($p["repo_url"], $p["name"], $scratch);
         if (!$ver) {
@@ -134,9 +170,9 @@ foreach ($manifest["packages"] as $p) {
     printf("%s|%s|%s|%s\n", basename($dest), $p["name"], $got,
         $p["upstream"] ?? "");
 }
-' "$REPO/packages/mirrors.json" "$STAGE" "$WORK") || { echo "$FETCHLOG"; exit 1; }
+' "$REPO/packages/mirrors.json" "$STAGE" "$WORK" "$PKGDIR") || { echo "$FETCHLOG"; exit 1; }
 echo "$FETCHLOG"
-case "$FETCHLOG" in *FAIL*) echo "mirror fetch failed - aborting" >&2; exit 1;; esac
+case "$FETCHLOG" in *FAIL*) echo "package fetch/build failed - aborting" >&2; exit 1;; esac
 
 # ------------------------------------------------------------------
 # 2. Build the manager package

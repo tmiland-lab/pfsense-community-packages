@@ -1,5 +1,5 @@
 {
-  "_comment": "Unified community package sources for the pfSense Community Packages repo. 'own' entries resolve the newest .pkg from the given pkg repo's packagesite at build time. 'mirror' entries are pinned upstream release assets verified against 'sha256' (fail hard on mismatch); for release tar assets a 'member' names the pkg file inside the tar (several entries may share one tar).",
+  "_comment": "Unified community package sources for the pfSense Community Packages repo. 'own' entries resolve the newest .pkg from the given pkg repo's packagesite at build time. 'mirror' entries are pinned upstream release assets verified against 'sha256' (fail hard on mismatch); for release tar assets a 'member' names the pkg file inside the tar (several entries may share one tar). 'port' entries build the package at repo build time from a pinned upstream port commit: 'url' is the source tarball of 'commit' (sha256-verified), 'port_path' the FreeBSD-ports style port inside it - for upstreams that ship neither release assets nor a pkg repository.",
   "packages": [
     {
       "name": "pfSense-pkg-configbackup",

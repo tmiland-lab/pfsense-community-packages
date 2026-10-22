@@ -103,6 +103,11 @@ same page. CLI equivalent:
   Where upstream publishes checksums, they are verified before recording;
   where upstream does not (`pfrest`), the recorded hash documents the
   reviewed build and is re-checked at every build.
+- **Source-built packages** (`port` entries) cover upstreams that ship
+  neither release assets nor a pkg repository. The package is built at repo
+  build time from a pinned upstream commit — the source tarball's sha256 is
+  verified on every build — with the version, file list and description
+  taken from the upstream port unchanged.
 - **ABI guard**: every staged package is checked against the target ABI at
   build time; mismatches fail the build (see `_excluded` in `mirrors.json`).
   Packages built on a *newer* FreeBSD userland than the target (poudriere's
@@ -141,9 +146,10 @@ same page. CLI equivalent:
 
 ## Adding a package
 
-Add an entry to `packages/mirrors.json` — either `own` (a pkg repository to
-resolve the newest version from) or `mirror` (a pinned upstream release asset
-+ sha256). Rebuild. Only redistribute what the upstream license permits.
+Add an entry to `packages/mirrors.json` — `own` (a pkg repository to resolve
+the newest version from), `mirror` (a pinned upstream release asset + sha256),
+or `port` (a pinned upstream port commit, built at repo build time). Rebuild.
+Only redistribute what the upstream license permits.
 
 ## Uninstall
 
