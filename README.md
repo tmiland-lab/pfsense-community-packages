@@ -30,6 +30,7 @@ metadata** and full upstream provenance.
 | pfSense-pkg-wgeasy | [MarceloMayo74](https://github.com/MarceloMayo74/pfsense-wgeasy) (mirror) | Apache-2.0 |
 | pfSense-pkg-wg-export | [3um3le3ee](https://github.com/3um3le3ee/pfSense-wireguard-peer-export) (mirror) | GPL-3.0 |
 | pfSense-pkg-Mullvad | [mmahrous](https://github.com/mmahrous/pfSense-pkg-Mullvad) (mirror) | Apache-2.0 |
+| pfSense-pkg-speedtest | [bdelphin](https://github.com/bdelphin/pfSense-pkg-speedtest) (built from pinned source) | Apache-2.0 |
 
 Live listing: <https://tmiland-lab.github.io/pfsense-community-packages/>
 
