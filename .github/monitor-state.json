@@ -1,4 +1,7 @@
 {
+  "commits": {
+    "bdelphin/pfSense-pkg-speedtest": "e01b1c72693be85453e3317a96ccb3b7ca8b652e"
+  },
   "forum": {
     "https://forum.netgate.com/topic/201335.rss": 2,
     "https://forum.netgate.com/topic/201336.rss": 2,
