@@ -38,7 +38,7 @@
     "MarceloMayo74/pfsense-wgeasy": "v0.4.3",
     "mmahrous/pfSense-pkg-Mullvad": "v0.1.0",
     "nopoz/pfsense-dnscrypt-proxy": "v1.2.13",
-    "pfrest/pfSense-pkg-RESTAPI": "v2.10.2",
+    "pfrest/pfSense-pkg-RESTAPI": "v2.11.0",
     "pfrest/pfSense-pkg-saml2-auth": "v2.1.0",
     "tmiland-lab/pfsense-airvpn-remotes": "v0.2.8",
     "tmiland-lab/pfsense-configbackup": "v0.1.6",
