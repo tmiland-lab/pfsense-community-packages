@@ -32,18 +32,42 @@ fi
 # ------------------------------------------------------------------
 FETCHLOG=$(php -r '
 /* Extract the newest version of $name from a pkg repo packagesite.yaml
- * (packagesite.pkg = xz-wrapped tar containing packagesite.yaml). */
-function cpm_own_version($repo_url, $name, $scratch) {
+ * (packagesite.pkg = xz-wrapped tar containing packagesite.yaml).
+ * GitHub Pages fetches occasionally fail transiently, so retry a few
+ * times before aborting the whole repository build. */
+function cpm_own_version($repo_url, $name, $scratch, &$err) {
     $site = $scratch . "/packagesite-" . md5($repo_url) . ".pkg";
-    exec(sprintf("fetch -qo %s %s/packagesite.pkg 2>/dev/null",
-        escapeshellarg($site), escapeshellarg($repo_url)), $o, $rc);
-    $o = [];
-    if ($rc != 0 || !filesize($site)) {
+    $last = "";
+    for ($attempt = 1; $attempt <= 3; $attempt++) {
+        if (is_file($site)) {
+            unlink($site);
+        }
+        $o = [];
+        exec(sprintf("fetch -qo %s %s/packagesite.pkg 2>&1",
+            escapeshellarg($site), escapeshellarg($repo_url)), $o, $rc);
+        if ($rc == 0 && is_file($site) && filesize($site) > 0) {
+            break;
+        }
+        $last = trim(implode(" ", array_slice($o, 0, 3)));
+        if ($last === "") {
+            $last = "fetch exited $rc";
+        }
+        if ($attempt < 3) {
+            sleep($attempt);
+        }
+    }
+    if ($rc != 0 || !is_file($site) || filesize($site) == 0) {
+        $err = "cannot fetch $repo_url/packagesite.pkg ($last)";
         return null;
     }
-    exec("tar -xOf " . escapeshellarg($site) . " packagesite.yaml 2>/dev/null", $yaml, $rc);
+    $yaml = [];
+    exec("tar -xOf " . escapeshellarg($site) . " packagesite.yaml 2>&1", $yaml, $rc);
     unlink($site);
     if ($rc != 0) {
+        $err = "cannot read packagesite.yaml from $repo_url/packagesite.pkg";
+        if ($yaml) {
+            $err .= ": " . trim(implode(" ", array_slice($yaml, 0, 3)));
+        }
         return null;
     }
     /* packagesite.yaml is a JSON stream: one object per package, per line. */
@@ -53,6 +77,7 @@ function cpm_own_version($repo_url, $name, $scratch) {
             return (string)($d["version"] ?? "");
         }
     }
+    $err = "$name is not listed in $repo_url/packagesite.pkg";
     return null;
 }
 $manifest = json_decode(file_get_contents($argv[1]), true);
@@ -95,9 +120,10 @@ foreach ($manifest["packages"] as $p) {
         continue;
     }
     if (($p["source"] ?? "") === "own") {
-        $ver = cpm_own_version($p["repo_url"], $p["name"], $scratch);
+        $err = "";
+        $ver = cpm_own_version($p["repo_url"], $p["name"], $scratch, $err);
         if (!$ver) {
-            echo "FAIL own {$p["name"]}: cannot resolve version from packagesite\n";
+            echo "FAIL own {$p["name"]}: " . ($err !== "" ? $err : "cannot resolve version from packagesite") . "\n";
             exit(1);
         }
         $file = $p["name"] . "-" . $ver . ".pkg";
