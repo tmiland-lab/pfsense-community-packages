@@ -8,14 +8,14 @@
 (./All/pfSense-pkg-configbackup-0.1.6.pkg) = a63c2c9d02e393db17ca1917c7410b150992c57197ad6b84650d8f9b8c06b2a6
 (./All/pfSense-pkg-dnscrypt-proxy-1.2.10.pkg) = a2e664523da4e081272d3b941174233b4b06b41dcc6a1ed8ab70487fcde84bad
 (./All/pfSense-pkg-ovpn-totp-0.1.0.pkg) = 883c2687bbbc47ae12cd0c0ca7f0b5f2fb1af83f0a62870d36aaed59b394fd2c
-(./All/pfSense-pkg-speedtest-0.1.1_1.pkg) = 8e58ebe75cbd1e86b77e310b146a0475340717974ec4869ac0b3a5bc1e67e53a
+(./All/pfSense-pkg-speedtest-0.1.1_1.pkg) = d0f6be38631cd5749b8856a251ba78cdd446fcb1155ab2f4a4d8941909d65dd9
 (./All/pfSense-pkg-vpn-providers-0.1.11.pkg) = 3f41d11d2d658c64481f4c81e36344f1961481c74aa7bd97d8c96b90abbc3afd
 (./All/pfSense-pkg-wg-export-1.2.0.pkg) = babb3f66c7ef40d4ab62a6b775546f17d0b0c738876d6d751ca9f1256e4b375d
 (./All/pfSense-pkg-wgeasy-0.4.3.pkg) = 641ea94c8664c1f72de4cdc0fc13baca08815d5d21b73c044648d95bd45e4bf4
 (./All/pfSense-theme-lightdark-0.2.3.pkg) = a688c8f8885886fb0d8dea389888f4c280c21a625dae4c5d4edd11410e8a38fb
 (./community.pub) = af462e9b6d23ce80dd83541ddba5a7f51eeb99b1097ec5d2a62f69bd0d785256
-(./data.pkg) = 874321a6c3ec6ea3f12d8848d7ab662b2e31f4b0474346fe9992001deae50ddd
+(./data.pkg) = ba0afb58b945e912107c8591f2c17e01942dfc469fce9379588ce3068eab2d60
 (./CHECKSUMS.txt) = e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
 (./meta) = ca7f091a4f9eccbf537a966a0d4d555cdfc4de34ad5be5c96a12c4485130664c
 (./meta.conf) = ca7f091a4f9eccbf537a966a0d4d555cdfc4de34ad5be5c96a12c4485130664c
-(./packagesite.pkg) = 8978624bcebf6846d78bd4f71b778ed3b5efc405ff5ae08642df6f76b4b40907
+(./packagesite.pkg) = fea7a2bc20edc318d69f9c77a3be7a62cd71b466836aafdc76a96bb77390f06a
