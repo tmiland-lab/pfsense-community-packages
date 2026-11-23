@@ -39,7 +39,7 @@
     "mmahrous/pfSense-pkg-Mullvad": "v0.1.0",
     "nopoz/pfsense-dnscrypt-proxy": "v1.2.13",
     "pfrest/pfSense-pkg-RESTAPI": "v2.11.1",
-    "pfrest/pfSense-pkg-saml2-auth": "v2.1.0",
+    "pfrest/pfSense-pkg-saml2-auth": "v2.1.1",
     "tmiland-lab/pfsense-airvpn-remotes": "v0.2.8",
     "tmiland-lab/pfsense-configbackup": "v0.1.6",
     "tmiland-lab/pfsense-ovpn-totp": "v0.1.0",
